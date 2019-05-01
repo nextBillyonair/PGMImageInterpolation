@@ -34,6 +34,7 @@
 \usetikzlibrary{arrows}
 \usepackage{color}
 \usepackage{array}
+\usepackage{dsfont}
 \usepackage{multirow, graphicx}
  \usepackage{float}
 \newcolumntype{C}[1]{>{\centering\arraybackslash}p{#1}}
@@ -144,7 +145,7 @@ likelihood $p(y | \mathbf{x})$ \cite{NgJordan}. The simplest pairing is
 the Naive Bayes classifier (generative) and Logistic Regression
 (discriminative). This paradigm can be extended to sequential and general
 models to form more pairs. We discuss our experimental pairs
-in Section \ref{sec:models}.
+in Sections \ref{sec:baseline-models} and \ref{sec:general-models}.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -186,6 +187,8 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
 
 \begin{figure}
   \centering
+  \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
+  \label{fig:interpolation}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
     \includegraphics[height=5cm]{ori_img.png}
@@ -215,8 +218,6 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
     \caption{Pixel Plot for the Decimated Image}
     \label{fig:reduced-pixel-plot}
   \end{subfigure}
-  \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
-  \label{fig:interpolation}
 \end{figure}
 
 The perferred method for image decimation, or downsampling, is to
@@ -245,15 +246,211 @@ relation to there values is replicated, albeit with information loss.
 % maybe uyse paragraph
 \subsection{Naive Bayes}
 \label{sec:NB}
+Naive Bayes is a simple generative classifier based on applying Bayes' theorem
+to extract the conditional likelihood $p(y \mid \mathbf{x})$. Its' fundamental
+assumption for the features is "naive" in that it assumes that every pair of
+features is conditionally independent given then class label $y$ for $K$ features.
+
+We can formulate our model from the joint distribution:
+\begin{equation}
+    p(y, \mathbf{x}) \; = \; p(y) \cdot \prod_{k=1}^K p(x_k \mid y)
+\end{equation}
+Our task is to find the class label $y$ that maximizes the posterior conditional
+likelihood:
+\begin{equation}
+  \begin{aligned}
+    \hat{y} \; = \; & \argmax_y \; p(y | \mathbf{x}) \\
+    = \; & \argmax_y \; \frac{p(y) \cdot \prod_{k=1}^K p(x_k \mid y)}{p(\mathbf{x})} \\
+    = \; & \argmax_y \; p(y) \cdot \prod_{k=1}^K p(x_k \mid y)
+  \end{aligned}
+\end{equation}
+We make use of the conditional independence assumption that all features
+are soely dependent on $y$ alonge, and that $p(\mathbf{x})$ is constant.
+
+Here, $p(y)$ is the frequency of class $y$ is the training set.
+For our purpuses we assume the features are normally distributed per class.
+Hence, our conditonal feature likelihood is:
+\begin{equation}
+  p(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
+\end{equation}
+
+To learn a Gaussian Naive Bayes model, we use Maximum Likelihood Estimates for
+the parameters $\mu_{kc}$ and $\sigma_{kc}$ per feature $k$ and class $c$, and class weights
+$\theta_c$. Hence the MLE estimates for $N$ samples are:
+\begin{equation}
+  \begin{aligned}
+    \theta_c \; = \; & \frac{1}{N} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} = \frac{N_c}{N} \\
+    \mu_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot x_{ik} \\
+    \sigma_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot \left( x_{ik} - \mu_{kc} \right)^2 \\
+  \end{aligned}
+\end{equation}
+where $N_c = \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} $, or the number
+of data points belonging to class $c$ \cite{murphy}.
 \subsection{Logistic Regression}
 \label{sec:LR}
+Logistic Regression is the discriminative analog to the Naive Bayes
+classifer, sometimes referred to as the \textit{maxmimum-entropy classifer}
+or a normalized \textit{log-linear model}. As a discriminative model,
+we can optimize directly for the conditional likelihood $p(y \mid \mathbf{x})$,
+with $Z(\mathbf{x})$ as the normalizing parition function.
+\begin{equation}
+  p(y \mid \mathbf{x}) = \frac{1}{Z(\mathbf{x})} \exp \Bigg\{ \sum_{j=1}^K \theta_k f_k\left( y, \mathbf{x} \right) \Bigg\}
+\end{equation}
+
+McCallum et. al formulates the logisitic regression model, parameterized by
+weights $\theta \in \mathbb{R}^K$, in which a single set of weights is shared
+across all the classes \cite{McCallumCRF}. This is acheived through a set of
+feature functions that are nonzero for a single class and is defined as follows:
+\begin{equation}
+  \begin{aligned}
+    f_{y', j} \left( y, \mathbf{x} \right) \; = \; & \mathds{1} \{ y' = y \} \cdot x_j \\
+    f_{y'} \left(y, \mathbf{x}\right) \; = \; & \mathds{1} \{ y' = y \} \\
+  \end{aligned}
+\end{equation}
+This notation, while not standard, mirrors our later formulation of Conditional
+Random Fields in Section \ref{sec:CRF}.
+
+For parameter estimation, we opted to use scikit-learn's implementation
+of the L-BFGS algorithm, which approximates the Broyden-Fletcher-Goldfarb-Shanno
+algoriothm \cite{scikit-learn}. This is a quasi-Newton optimzation method that apprixmates the
+Hessian matrix to reduce memory usage. Scikit-learn optimizes the L2 penalized
+multinomial loss \cite{scikit-learn} \cite{murphy}.
+\begin{equation}
+  \min_{\theta} \; \frac{1}{2} \cdot \theta^T \theta - \sum_{i=1}^N \Bigg[ \sum_{c=1}^C \Bigg[ \mathds{1} \{ y_i = y_c \} \cdot \sum_{k=1}^K \theta_k f_k\left( y_i, \mathbf{x}_i \right) \Bigg] - \log Z(\mathbf{x}_i)  \Bigg]
+\end{equation}
+where $y_i$ is the true label and $y_c$ could be any label.
+
+\begin{figure}
+    \centering
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \caption*{Generative: Naive Bayes}
+        \tikz{ %
+          \centering
+          \node[latent] (y) {$y$} ; %
+          \node[obs, below=of y, xshift=-1cm] (x1) {$x_1$} ; %
+          \node[obs, below=of y] (x2) {$x_2$} ; %
+          \node[obs, below=of y, xshift=1cm] (x3) {$x_3$} ; %
+          \edge {y} {x1, x2, x3} ; %
+        }
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \caption*{Generative: General Bayesian Networks}
+        \tikz{ %
+          \centering
+          \node[latent] (x1) {$x_1$} ; %
+          \node[latent, right=of x1] (x2) {$x_2$};
+          \node[latent, right=of x2] (x3) {$x_3$};
+          \node[obs, below=of x1] (x4) {$x_4$} ; %
+          \node[obs, right=of x4] (x5) {$x_5$} ; %
+          \node[obs, right=of x5] (x6) {$x_6$} ; %
+
+          \edge {x1} {x4};
+          \edge {x4} {x5};
+          \edge {x2} {x5,x6,x3};
+          \edge {x3} {x6};
+          \path[->] (x1) edge[bend left] node [right] {} (x3);
+        }
+    \end{subfigure}
+
+    \vspace{15pt}
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \caption*{Discriminative: Logistic Regression}
+        \tikz{ %
+          \centering
+          \node[latent] (y) {$y$} ; %
+          \node[obs, below=of y, xshift=-1cm] (x1) {$x_1$} ; %
+          \node[obs, below=of y] (x2) {$x_2$} ; %
+          \node[obs, below=of y, xshift=1cm] (x3) {$x_3$} ; %
+          \node[factor, below=of y, xshift=-0.5cm] (factor-node-1) {} ; %
+          \node[factor, below=of y] (factor-node-2) {} ; %
+          \node[factor, below=of y, xshift=0.5cm] (factor-node-3) {} ; %
+          \factoredge[-] {y} {factor-node-1} {x1}; %
+          \factoredge[-] {y} {factor-node-2} {x2}; %
+          \factoredge[-] {y} {factor-node-3} {x3}; %
+        }
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.45\textwidth}
+        \centering
+        \caption*{Discriminative: Conditional Random Fields}
+        \tikz{ %
+          \centering
+          \node[latent] (x1) {$x_1$} ; %
+          \node[latent, right=of x1, yshift=-0.7cm] (x2) {$x_2$};
+          \node[latent, right=of x2, yshift=0.7cm] (x3) {$x_3$};
+          \node[obs, below=of x1] (x4) {$x_4$} ; %
+          \node[obs, right=of x4, xshift=0.5cm] (x5) {$x_5$} ; %
+          \node[obs, below=of x3] (x6) {$x_6$} ; %
+          \node[factor, below=of x1] (f1) {};
+          \node[factor, above=of x2, yshift=-0.15cm] (f2) {};
+          \node[factor, right=of x4, xshift=.5cm] (f3) {};
+          \node[factor, below=of x3, yshift=0.15cm] (f4) {};
+
+          \factoredge[-] {x1} {f1} {x4}; %
+          \factoredge[-] {x1} {f2} {x3, x2}; %
+          \factoredge[-] {x4} {f3} {x2, x5}; %
+          \factoredge[-] {x3} {f4} {x2, x6}; %
+        }
+    \end{subfigure}
+\end{figure}
+
 \section{General Models}
 \label{sec:general-models}
 \subsection{Bayesian Networks}
 \label{sec:GBN}
 \subsection{Conditonal Random Fields (CRFs)}
 \label{sec:CRF}
+Conditional Random Fields (CRFs) are discriminative graphical models that
+can model output variables $\mathbf{y}$ conditioned on features $\mathbf{x}$
+compactly, in contrast to generative models. CRFs are natural extensions
+to logistic regression for general graphs. We describe the model formulation,
+paramter estimation, and inference tasks as outlined by McCallum et. al \cite{McCallumCRF},
+and introduced by Lafferty et. al \cite{CRF}.
 
+CRFs model a conditional likelihood $p(\mathbf{y} \mid \mathbf{x})$ on a general
+graph $\mathcal{G}$, composed of a set of factors
+$F = \{ \psi_a \} _{a=1}^{A}$. We reiterate McCallum's description
+of a CRF with paramter tying, where a set of factors can share a set of feature
+functions $\{f_{pk}\left(\mathbf{x}_c, \mathbf{y}_c \right)\}_{k=1}^{K(p)}$ and
+parameters $\theta_p \in \mathbb{R}^{K(p)}$ for a given \textit{clique template}
+$C_p$. These clique templates come from paritioning the factors of graph
+$\mathcal{G}$ into $\mathcal{C} = \{C_1, C_2, \hdots, C_p \}$. Hence, our model
+is composed of the following:
+\begin{equation}
+  \begin{aligned}
+    p(\mathbf{y} \mid \mathbf{x}) \; = \; & \frac{1}{Z(\mathbf{x})} \prod_{C_p \in \mathcal{C}} \prod_{\mathbf{\psi}_c \in C_p} \psi_c (\mathbf{x}_c, \mathbf{y}_c ; \theta_p) \\
+    \psi_c (\mathbf{x}_c, \mathbf{y}_c ; \theta_p ) \; = \; & \exp \Bigg\{ \sum_{k=1}^{K(p)} \theta_{pk} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) \Bigg\} \\
+    Z(\mathbf{x}) \; = \; & \sum_{\mathbf{y}} \prod_{C_p \in \mathcal{C}} \prod_{\mathbf{\psi}_c \in C_p} \psi_c (\mathbf{x}_c, \mathbf{y}_c ; \theta_p) \\
+  \end{aligned}
+\end{equation}
+where $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ is the
+weight associated with it. $K$ is the number of features and $K(p)$ are the
+features found in factor $p$.
+Because our labels are discrete, we can write our
+feature functions $f_pk$ in terms of observation functions $q_{pk}$ to make
+\textit{label-observation features}.
+\begin{equation}
+  f_{pk} (\mathbf{y}_c, \mathbf{x}_c) = \mathds{1} \{\mathbf{y}_c = \mathbf{\widetilde{y}}_c\} \cdot q_{pk}(\mathbf{x}_c)
+\end{equation}
+
+Parameter estimation for CRFs can be done through maximum likelihood estimation,
+where we can minimize the conditional negative log likelihood:
+\begin{equation}
+  \ell (\theta) \; = \; - \sum_{C_p \in \mathcal{C}} \sum_{\psi_c \in C_p} \sum_{k=1}^{K(p)} \theta_{pk} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \log Z(\mathbf{x})
+\end{equation}
+Hence, the partial derivative with respect to our paramter $\theta_{pk}$ associated
+with the clique template $C_p$ is:
+\begin{equation}
+  \frac{\partial \ell}{\partial \theta_{pk}} \; = \; - \sum_{\psi_c \in C_p} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \sum_{\psi_c \in C_p} \sum_{\mathbf{y'}_c} f_{pk} (\mathbf{x}_c, \mathbf{y'}_c) \cdot p(\mathbf{y'}_c \mid \mathbf{x})
+\end{equation}
+We can then minimize our cost function $\ell$ using L-BFGS optimization
+algorithm as described in Section \ref{sec:LR}.
+
+% Add inference
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
