@@ -96,6 +96,7 @@ def stack(imgs):
 
 def make_train_test_sets(imgs, p=0.1):
     train, test = stack(imgs)
+    l1, l2, l3, l4 = imgs.keys()
     return train_test_split(train, test, test_size=p), {0:l1, 1:l2, 2:l3, 3:l4}
 
 def make_subplot(rows, cols):
