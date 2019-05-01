@@ -68,25 +68,81 @@
   \textit{generative} and \textit{discriminative}. In computer vision,
   \textit{image interpolation} is a method to rescale images analgous to
   dimensionality reduction. We explore the generalization ability of
-  generative-discriminative pairs when interpolating images to smaller sizes.
+  \textit{generative-discriminative pairs} when interpolating images to smaller
+  sizes.
 \end{abstract}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Introduction}
 \label{sec:intro}
-% something about ehy this might be interesting
+% something about how this might be interesting
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % steal from proposal
 \section{Statistical Classification}
-\subsection{Generative Modeling}
-\label{sec:gen-modeling}
-\subsection{Discriminative Modeling}
-\label{sec:discrim-modeling}
-\subsection{Generative-Discriminative Pairs}
-\label{sec:gen-discrim-pairs}
+Classification is the task of assigning a label $y$ to a set of observed
+features $\mathbf{x}$. Yet the way we approach modeling these relationships
+can be broken down into either the \textit{generative} or the
+\textit{discriminative} approach.
+
+\begin{figure*}[h!]
+    \centering
+    \begin{subfigure}[t]{0.15\textwidth}
+        \centering
+        \tikz{ %
+          \node[latent] (y) {$y$} ; %
+          \node[obs, below=of y] (x) {$\mathbf{x}$} ; %
+          \edge {y} {x} ; %
+        }
+        \caption*{Generative}
+    \end{subfigure}%
+    ~
+    \begin{subfigure}[t]{0.15\textwidth}
+        \centering
+        \tikz{ %
+          \node[obs] (x) {$\mathbf{x}$} ; %
+          \node[latent, below=of x] (y) {$y$} ; %
+          \node[factor, below=of x] (factor-node) {} ; %
+          \factoredge[-] {x} {factor-node} {y} ; %
+        }
+        \caption*{Discriminative}
+    \end{subfigure}
+\end{figure*}
+
+The generative approach models the joint distribution $p(y, \mathbf{x})$,
+and can assign labels through Bayes rule \cite{NgJordan}.
+\begin{equation}
+    \hat{y} \; = \; \argmax_y \; p(y, \mathbf{x}) \; = \; \argmax_y \; p(y) \cdot p(\mathbf{x} | y) \\
+\end{equation}
+Generative models are attractive in that distributions are learned over the
+feature space for each indvidual class. However, an important limitation
+mentioned by Callum et. al \cite{McCallumCRF} is that modeling a distribution
+\textit{per feature} quickly becomes intractable as the dimensionality of our
+observed variables $\mathbf{x}$ grows. While simple models can mitigate
+these issues by assuming independence among the features, allowing complex
+dependencies between inputs offers the ability to increase performance.
+
+An alternative approach is to model the conditonal probabilities directly,
+ignoring the feature distributions. This is the discriminative approach,
+and is sometimes referred to as a \textit{distribution-free classifier}.
+By ignoring the feature distributions, parameters are learned only on the
+conditional likelihood $p(y | \mathbf{x})$, resulting in a compact model
+that can handle large feature spaces, as dependencies
+are ignored \cite{McCallumCRF}.
+
+To compare generative and discriminative modeling, one can experiment
+with pairs of classifiers that can be considered analgous to each other.
+More formally, a \textit{generative-discriminative pair} is a parametric
+family of probabilistic models that can either be fit to maximize the joint
+probability $p(y, \mathbf{x})$ or the conditional
+likelihood $p(y | \mathbf{x})$ \cite{NgJordan}. The simplest pairing is
+the Naive Bayes classifier (generative) and Logistic Regression
+(discriminative). This paradigm can be extended to sequential and general
+models to form more pairs. We discuss our experimental pairs
+in Section \ref{sec:models}.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -95,6 +151,75 @@
 \label{sec:img-interpolation}
 % Explain process and how its good or cool, analgoy to dimensionalty reduction
 % in a different way
+The most common problem encountered in machine learning is the
+\textit{curse of dimensionality}. Esssentially, as our feature space
+$\mathbf{x}$ grows in size, we require a larger number of parameters to
+estimate. This can quickly become intractable in complex models, and
+reasonably difficult in simple ones. We can see the growth
+in features as we increase the image size in Figure \ref{fig:feature-size}.
+One method to reduce the number of
+features for a data set is Principle Component Analysis, which projects
+data to a smaller dimension while maximining the variance. However,
+interapibility is lost, and the structure of the painting is unitnelligble.
+
+\begin{figure}
+  \centering
+  \includegraphics[height=4cm]{feature_graph.png}
+  \vspace{-5pt}
+  \caption{Exponentional growth in the number features quickly makes modeling intractable.}
+  \label{fig:feature-size}
+\end{figure}
+
+Image interpolation offers a convient way to downsample images according to
+their local neighborhood, aggregating otherwise noisy estimates into a single
+value. This may be beneficial for classification tasks, as we combine a method
+analgous to dimsionality reduction while preserving the fundamental structure of
+the orignal content. We use OpenCV's implementation of interpolation \cite{opencv}.
+
+Formally, image interpolation is the task of rescaling an image of one size
+to another. This can be used to both decimate and expand the image. Several
+methods exists for this task, including linear, bicubic, nearest neighbor, and
+\textit{area relation}.
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[height=5cm]{ori_img.png}
+    \vspace{-13pt}
+    \caption{Original Image (498x500)}
+    \label{fig:ori-image}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[height=5cm]{decimated_img.png}
+    \vspace{-13pt}
+    \caption{Decimated Image (64x64)}
+    \label{fig:reduced-img}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{1.\textwidth}
+    \centering
+    \includegraphics[height=4cm]{ori_pixel_plot.png}
+    \caption{Pixel Plot for the Original Image}
+    \label{fig:ori-pixel-plot}
+  \end{subfigure}
+
+  \begin{subfigure}[b]{1.\textwidth}
+    \centering
+    \includegraphics[height=4cm]{decimated_pixel_plot.png}
+    \caption{Pixel Plot for the Decimated Image}
+    \label{fig:reduced-pixel-plot}
+  \end{subfigure}
+  \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
+  \label{fig:interpolation}
+\end{figure}
+
+The perferred method for image decimation, or downsampling, is to
+resampling using pixel area relation as it gives moire'-free results. We can
+see in Figure \ref{fig:interpolation} that the general space of the pixels in
+relation to there values is replicated, albeit with information loss.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -112,20 +237,18 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % Describe our pairs
-\section{Models}
-\label{sec:models}
-\subsection{Baseline}
-\label{sec:baseline}
+\section{Baseline Models}
+\label{sec:baseline-models}
 % maybe uyse paragraph
-\subsubsection{Naive Bayes}
+\subsection{Naive Bayes}
 \label{sec:NB}
-\subsubsection{Logistic Regression}
+\subsection{Logistic Regression}
 \label{sec:LR}
-\subsection{General}
-\label{sec:general}
-\subsubsection{Bayesian Networks}
+\section{General Models}
+\label{sec:general-models}
+\subsection{Bayesian Networks}
 \label{sec:GBN}
-\subsubsection{Conditonal Random Fields (CRFs)}
+\subsection{Conditonal Random Fields (CRFs)}
 \label{sec:CRF}
 
 
@@ -139,12 +262,29 @@
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 \section{Results: Parameter Estimation}
 \label{sec:results-param}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \includegraphics[height=4.75cm]{nb_graph.png}
+    \caption*{}
+    \label{fig:nb_graph}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.47\textwidth}
+    \centering
+    \includegraphics[height=4.75cm]{lr_graph.png}
+    \caption*{}
+    \label{fig:lr_graph}
+  \end{subfigure}
+  \vspace{-10pt}
+  \caption{Training/Testing Accuracy Results for Baseline Models.}
+\end{figure}
 
 \section{Results: Inference}
 \label{sec:results-inference}
