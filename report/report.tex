@@ -67,7 +67,7 @@
 \begin{abstract}
   In statistical classification, there are two main approaches to learning:
   \textit{generative} and \textit{discriminative}. In computer vision,
-  \textit{image interpolation} is a method to rescale images analgous to
+  \textit{image interpolation} is a method to rescale images analogous to
   dimensionality reduction. We explore the generalization ability of
   \textit{generative-discriminative pairs} when interpolating images to smaller
   sizes.
@@ -121,14 +121,14 @@ and can assign labels through Bayes rule \cite{NgJordan}.
     \hat{y} \; = \; \argmax_y \; p(y, \mathbf{x}) \; = \; \argmax_y \; p(y) \cdot p(\mathbf{x} | y) \\
 \end{equation}
 Generative models are attractive in that distributions are learned over the
-feature space for each indvidual class. However, an important limitation
+feature space for each individual class. However, an important limitation
 mentioned by Callum et. al \cite{McCallumCRF} is that modeling a distribution
 \textit{per feature} quickly becomes intractable as the dimensionality of our
 observed variables $\mathbf{x}$ grows. While simple models can mitigate
 these issues by assuming independence among the features, allowing complex
 dependencies between inputs offers the ability to increase performance.
 
-An alternative approach is to model the conditonal probabilities directly,
+An alternative approach is to model the conditional probabilities directly,
 ignoring the feature distributions. This is the discriminative approach,
 and is sometimes referred to as a \textit{distribution-free classifier}.
 By ignoring the feature distributions, parameters are learned only on the
@@ -137,7 +137,7 @@ that can handle large feature spaces, as dependencies
 are ignored \cite{McCallumCRF}.
 
 To compare generative and discriminative modeling, one can experiment
-with pairs of classifiers that can be considered analgous to each other.
+with pairs of classifiers that can be considered analogous to each other.
 More formally, a \textit{generative-discriminative pair} is a parametric
 family of probabilistic models that can either be fit to maximize the joint
 probability $p(y, \mathbf{x})$ or the conditional
@@ -153,32 +153,32 @@ in Sections \ref{sec:baseline-models} and \ref{sec:general-models}.
 
 \section{Image Interpolation}
 \label{sec:img-interpolation}
-% Explain process and how its good or cool, analgoy to dimensionalty reduction
+% Explain process and how its good or cool, analogy to dimensionality reduction
 % in a different way
 The most common problem encountered in machine learning is the
-\textit{curse of dimensionality}. Esssentially, as our feature space
+\textit{curse of dimensionality}. Essentially, as our feature space
 $\mathbf{x}$ grows in size, we require a larger number of parameters to
 estimate. This can quickly become intractable in complex models, and
 reasonably difficult in simple ones. We can see the growth
 in features as we increase the image size in Figure \ref{fig:feature-size}.
 One method to reduce the number of
 features for a data set is Principle Component Analysis, which projects
-data to a smaller dimension while maximining the variance. However,
-interapibility is lost, and the structure of the painting is unitnelligble.
+data to a smaller dimension while maximizing the variance. However,
+Interoperability is lost, and the structure of the painting is unintelligible.
 
 \begin{figure}
   \centering
   \includegraphics[height=4cm]{feature_graph.png}
   \vspace{-5pt}
-  \caption{Exponentional growth in the number features quickly makes modeling intractable.}
+  \caption{Exponential growth in the number features quickly makes modeling intractable.}
   \label{fig:feature-size}
 \end{figure}
 
-Image interpolation offers a convient way to downsample images according to
+Image interpolation offers a convenient way to downsample images according to
 their local neighborhood, aggregating otherwise noisy estimates into a single
 value. This may be beneficial for classification tasks, as we combine a method
-analgous to dimsionality reduction while preserving the fundamental structure of
-the orignal content. We use OpenCV's implementation of interpolation \cite{opencv}.
+analogous to dimensionality reduction while preserving the fundamental structure of
+the original content. We use OpenCV's implementation of interpolation \cite{opencv}.
 
 Formally, image interpolation is the task of rescaling an image of one size
 to another. This can be used to both decimate and expand the image. Several
@@ -220,10 +220,10 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
   \end{subfigure}
 \end{figure}
 
-The perferred method for image decimation, or downsampling, is to
+The preferred method for image decimation, or downsampling, is to
 resampling using pixel area relation as it gives moire'-free results. We can
 see in Figure \ref{fig:interpolation} that the general space of the pixels in
-relation to there values is replicated, albeit with information loss.
+relation to their values is replicated, albeit with information loss.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -233,12 +233,14 @@ relation to there values is replicated, albeit with information loss.
 Our data is drawn from a subset of the Rijkmuseum Dataset \cite{Rijksmuseum}.
 In order to have enough samples for a challenging classification task, we
 elected to perform type categorization. We used the top 4 art types: paintings,
-photos, drawings, and prints. Each categogery is limited to the size of the
+photos, drawings, and prints. Each category is limited to the size of the
 smallest set, which is 2,269 photos. Hence we have a dataset of 9,076 images
 split evenly between the 4 classes. For training purposes, we use 10\% of the
 data as our test set (8,168 training, 908 test).
 
  \begin{figure}
+   \caption{Class Examples}
+   \label{fig:examples}
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
      \includegraphics[height=2.5cm]{sample_painting.png}
@@ -266,15 +268,13 @@ data as our test set (8,168 training, 908 test).
      \caption{Sample Print}
      \label{fig:print}
    \end{subfigure}
-   \caption{Class Examples}
-   \label{fig:examples}
  \end{figure}
 
 From Figure \ref{fig:examples}, we can see that paintings are vastly different
 from the other classes, while photos and prints may be difficult to distinguish
-between. Photos and prints share a similiar hue and tone, and drawings do not
+between. Photos and prints share a similar hue and tone, and drawings do not
 always have the vibrant colors found in paintings. Hence, our 4-way
-classification task should be difficult to learn, allow ample room to experiemnt
+classification task should be difficult to learn, allow ample room to experiment
 with complex models.
 
 
@@ -284,7 +284,7 @@ with complex models.
 % Describe our pairs
 \section{Baseline Models}
 \label{sec:baseline-models}
-% maybe uyse paragraph
+% maybe use paragraph
 \subsection{Naive Bayes}
 \label{sec:NB}
 Naive Bayes is a simple generative classifier based on applying Bayes' theorem
@@ -306,11 +306,11 @@ likelihood:
   \end{aligned}
 \end{equation}
 We make use of the conditional independence assumption that all features
-are soely dependent on $y$ alonge, and that $p(\mathbf{x})$ is constant.
+are solely dependent on $y$ alone, and that $p(\mathbf{x})$ is constant.
 
 Here, $p(y)$ is the frequency of class $y$ is the training set.
-For our purpuses we assume the features are normally distributed per class.
-Hence, our conditonal feature likelihood is:
+For our purposes we assume the features are normally distributed per class.
+Hence, our conditional feature likelihood is:
 \begin{equation}
   p(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
 \end{equation}
@@ -320,9 +320,9 @@ the parameters $\mu_{kc}$ and $\sigma_{kc}$ per feature $k$ and class $c$, and c
 $\theta_c$. Hence the MLE estimates for $N$ samples are:
 \begin{equation}
   \begin{aligned}
-    \theta_c \; = \; & \frac{1}{N} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} = \frac{N_c}{N} \\
-    \mu_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot x_{ik} \\
-    \sigma_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot \left( x_{ik} - \mu_{kc} \right)^2 \\
+    \hat{\theta}_c \; = \; & \frac{1}{N} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} = \frac{N_c}{N} \\
+    \hat{\mu}_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot x_{ik} \\
+    \hat{\sigma}_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot \left( x_{ik} - \mu_{kc} \right)^2 \\
   \end{aligned}
 \end{equation}
 where $N_c = \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} $, or the number
@@ -330,17 +330,17 @@ of data points belonging to class $c$ \cite{murphy}.
 \subsection{Logistic Regression}
 \label{sec:LR}
 Logistic Regression is the discriminative analog to the Naive Bayes
-classifer, sometimes referred to as the \textit{maxmimum-entropy classifer}
+classifier, sometimes referred to as the \textit{maxmimum-entropy classifer}
 or a normalized \textit{log-linear model}. As a discriminative model,
 we can optimize directly for the conditional likelihood $p(y \mid \mathbf{x})$,
-with $Z(\mathbf{x})$ as the normalizing parition function.
+with $Z(\mathbf{x})$ as the normalizing partition function.
 \begin{equation}
   p(y \mid \mathbf{x}) = \frac{1}{Z(\mathbf{x})} \exp \Bigg\{ \sum_{j=1}^K \theta_k f_k\left( y, \mathbf{x} \right) \Bigg\}
 \end{equation}
 
-McCallum et. al formulates the logisitic regression model, parameterized by
+McCallum et. al formulates the logistic regression model, parameterized by
 weights $\theta \in \mathbb{R}^K$, in which a single set of weights is shared
-across all the classes \cite{McCallumCRF}. This is acheived through a set of
+across all the classes \cite{McCallumCRF}. This is achieved through a set of
 feature functions that are nonzero for a single class and is defined as follows:
 \begin{equation}
   \begin{aligned}
@@ -353,7 +353,7 @@ Random Fields in Section \ref{sec:CRF}.
 
 For parameter estimation, we opted to use scikit-learn's implementation
 of the L-BFGS algorithm, which approximates the Broyden-Fletcher-Goldfarb-Shanno
-algoriothm \cite{scikit-learn}. This is a quasi-Newton optimzation method that apprixmates the
+algorithm \cite{scikit-learn}. This is a quasi-Newton optimization method that approximates the
 Hessian matrix to reduce memory usage. Scikit-learn optimizes the L2 penalized
 multinomial loss \cite{scikit-learn} \cite{murphy}.
 \begin{equation}
@@ -441,24 +441,50 @@ where $y_i$ is the true label and $y_c$ could be any label.
 
 \section{General Models}
 \label{sec:general-models}
-\subsection{Bayesian Networks}
+\subsection{General Discrete Bayesian Networks}
 \label{sec:GBN}
-\subsection{Conditonal Random Fields (CRFs)}
+General Discrete Bayesian Networks (GBNs) are directed graphical models that are
+comprised of a set of nodes and edges. The nodes are our random variables,
+and they interrelate through directed edges. This allows us to
+encode complex relations between our features $\mathbf{x}$ that are not
+captured by the naive nayes classifer. We can exploit these relationships
+to decompose the joint distribution of the network as follows:
+\begin{equation}
+  p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k)) \; = \; \prod_{k=1}^K \theta_{x_k \mid \mathbf{x}_{pa(k)}}
+\end{equation}
+Hence the joint distribtuion factorizes into a distribution for a node
+conditioned on the parents.
+Given $N$ observations $\mathbf{x}_1, \hdots, \mathbf{x}_n$, we can express
+the likelihood function as:
+\begin{equation}
+  \mathcal{L} \; = \; \prod_{i=1}^{N} \prod_{k=1}^{K} \theta_{x_{k}^{i} \mid \mathbf{x}_{pa(k)}^{i}}
+\end{equation}
+
+GBNs have a closed form solution to the maximum likelihood estimates, which can
+be expressed as the counts per node states over the total number of samples
+with equivalent parent states. However, caution must be expercised in the
+construction of the network, where as the number of parents increase we
+encounter \textit{data fragmentation}. Limiting the number of parents can
+mitigate this issue by introducing \textit{sparsity}.
+\begin{equation}
+  \hat{\theta}_{x_k \mid \mathbf{x}_{pa(k)}} = \frac{ \sum_{i=1}^{N} \mathds{1} \{ x_{k}^{i} = x_k \} \cdot \mathds{1} \{\mathbf{x}_{pa(k)}^{i} = \mathbf{x}_{pa(k)} \} }{ \sum_{i=1}^{N} \mathds{1} \{\mathbf{x}_{pa(k)}^{i} = \mathbf{x}_{pa(k)} \} }
+\end{equation}
+\subsection{Conditional Random Fields (CRFs)}
 \label{sec:CRF}
 Conditional Random Fields (CRFs) are discriminative graphical models that
 can model output variables $\mathbf{y}$ conditioned on features $\mathbf{x}$
 compactly, in contrast to generative models. CRFs are natural extensions
 to logistic regression for general graphs. We describe the model formulation,
-paramter estimation, and inference tasks as outlined by McCallum et. al \cite{McCallumCRF},
+parameter estimation, and inference tasks as outlined by McCallum et. al \cite{McCallumCRF},
 and introduced by Lafferty et. al \cite{CRF}.
 
 CRFs model a conditional likelihood $p(\mathbf{y} \mid \mathbf{x})$ on a general
 graph $\mathcal{G}$, composed of a set of factors
 $F = \{ \psi_a \} _{a=1}^{A}$. We reiterate McCallum's description
-of a CRF with paramter tying, where a set of factors can share a set of feature
+of a CRF with parameter tying, where a set of factors can share a set of feature
 functions $\{f_{pk}\left(\mathbf{x}_c, \mathbf{y}_c \right)\}_{k=1}^{K(p)}$ and
 parameters $\theta_p \in \mathbb{R}^{K(p)}$ for a given \textit{clique template}
-$C_p$. These clique templates come from paritioning the factors of graph
+$C_p$. These clique templates come from partitioning the factors of graph
 $\mathcal{G}$ into $\mathcal{C} = \{C_1, C_2, \hdots, C_p \}$. Hence, our model
 is composed of the following:
 \begin{equation}
@@ -513,14 +539,6 @@ included: 1, 2, 4, 8, 16, 32, 64, and 128. We did not test higher pixel sizes
 as 256x256 pixel images quickly became impossible due to memory constraints.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Results: Parameter Estimation}
-\label{sec:results-param}
-\subsection{Baseline}
-\subsection{General}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 \begin{figure}
   \centering
   \begin{subfigure}[b]{0.47\textwidth}
@@ -539,6 +557,13 @@ as 256x256 pixel images quickly became impossible due to memory constraints.
   \vspace{-10pt}
   \caption{Training/Testing Accuracy Results for Baseline Models.}
 \end{figure}
+
+\section{Results: Parameter Estimation}
+\label{sec:results-param}
+\subsection{Baseline}
+\subsection{General}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Results: Inference}
 \label{sec:results-inference}
