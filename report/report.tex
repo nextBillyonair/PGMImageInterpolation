@@ -55,7 +55,7 @@
 
 \author{%
   William Watson \\
-  Johns Hopkins University\\
+  The Johns Hopkins University\\
   \texttt{billwatson@jhu.edu} \\
 }
 
@@ -81,11 +81,33 @@
 \section{Introduction}
 \label{sec:intro}
 % something about how this might be interesting
+Probabilistic graphical models have many applications in computer science,
+ranging from image segmentation to named entity recognition. However, these
+models can become unwieldily when our feature space $\mathbf{x}$ grows. In the
+case of images, as we increase the number of pixels per row and column, the
+total number of features grows exponentially. For large images, if we treat
+the input space as a rasterized image, then the total number of features is
+$3 \times size^{2}$.
 
+This leads to issues of tractability for both parameter estimation and
+inference. This paper concerns itself with using image interpolation as
+a dimensionality reduction technique to make learning tractable. We vary the
+dimensionality to see both the generalization ability of our models and the
+efficiency of parameter estimation. We describe our data in Section \ref{sec:data},
+our experimental procedure in Section \ref{sec:task}, and image interpolation
+(Section \ref{sec:img-interpolation}).
+
+We experiment with this concept through two approaches: \textit{generative}
+and \textit{discriminative} learning. Both approaches are outlined in Section
+\ref{sec:classification}. Our models are formally described in Section
+\ref{sec:baseline-models} and Section \ref{sec:general-models}. Our results
+are presented for both the parameter estimation (Section \ref{sec:results-param})
+and inference (Section \ref{sec:results-inference}) tasks.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % steal from proposal
 \section{Statistical Classification}
+\label{sec:classification}
 Classification is the task of assigning a label $y$ to a set of observed
 features $\mathbf{x}$. Yet the way we approach modeling these relationships
 can be broken down into either the \textit{generative} or the
@@ -122,7 +144,7 @@ and can assign labels through Bayes rule \cite{NgJordan}.
 \end{equation}
 Generative models are attractive in that distributions are learned over the
 feature space for each individual class. However, an important limitation
-mentioned by Callum et. al \cite{McCallumCRF} is that modeling a distribution
+mentioned by McCallum et. al \cite{McCallumCRF} is that modeling a distribution
 \textit{per feature} quickly becomes intractable as the dimensionality of our
 observed variables $\mathbf{x}$ grows. While simple models can mitigate
 these issues by assuming independence among the features, allowing complex
@@ -164,9 +186,9 @@ in features as we increase the image size in Figure \ref{fig:feature-size}.
 One method to reduce the number of
 features for a data set is Principle Component Analysis, which projects
 data to a smaller dimension while maximizing the variance. However,
-Interoperability is lost, and the structure of the painting is unintelligible.
+interpretability is lost, and the structure of the painting is unintelligible.
 
-\begin{figure}
+\begin{figure}[h!]
   \centering
   \includegraphics[height=4cm]{feature_graph.png}
   \vspace{-5pt}
@@ -185,7 +207,7 @@ to another. This can be used to both decimate and expand the image. Several
 methods exists for this task, including linear, bicubic, nearest neighbor, and
 \textit{area relation}.
 
-\begin{figure}
+\begin{figure}[h!]
   \centering
   \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
   \label{fig:interpolation}
@@ -193,7 +215,7 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
     \centering
     \includegraphics[height=5cm]{ori_img.png}
     \vspace{-13pt}
-    \caption{Original Image (498x500)}
+    \caption{Original Image ($498 \times 500$)}
     \label{fig:ori-image}
   \end{subfigure}
   ~
@@ -201,7 +223,7 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
     \centering
     \includegraphics[height=5cm]{decimated_img.png}
     \vspace{-13pt}
-    \caption{Decimated Image (64x64)}
+    \caption{Decimated Image ($64 \times 64$)}
     \label{fig:reduced-img}
   \end{subfigure}
 
@@ -232,13 +254,13 @@ relation to their values is replicated, albeit with information loss.
 \label{sec:data}
 Our data is drawn from a subset of the Rijkmuseum Dataset \cite{Rijksmuseum}.
 In order to have enough samples for a challenging classification task, we
-elected to perform type categorization. We used the top 4 art types: paintings,
+elected to perform type categorization. We used the top $4$ art types: paintings,
 photos, drawings, and prints. Each category is limited to the size of the
-smallest set, which is 2,269 photos. Hence we have a dataset of 9,076 images
-split evenly between the 4 classes. For training purposes, we use 10\% of the
-data as our test set (8,168 training, 908 test).
+smallest set, which is $2,269$ photos. Hence we have a dataset of $9,076$ images
+split evenly between the 4 classes. For training purposes, we use $10$\% of the
+data as our test set ($8,168$ training, $908$ test).
 
- \begin{figure}
+ \begin{figure}[h!]
    \caption{Class Examples}
    \label{fig:examples}
    \begin{subfigure}[b]{0.23\textwidth}
@@ -284,7 +306,6 @@ with complex models.
 % Describe our pairs
 \section{Baseline Models}
 \label{sec:baseline-models}
-% maybe use paragraph
 \subsection{Naive Bayes}
 \label{sec:NB}
 Naive Bayes is a simple generative classifier based on applying Bayes' theorem
@@ -441,18 +462,18 @@ where $y_i$ is the true label and $y_c$ could be any label.
 
 \section{General Models}
 \label{sec:general-models}
-\subsection{General Discrete Bayesian Networks}
+\subsection{General Discrete Bayesian Networks (GBNs)}
 \label{sec:GBN}
 General Discrete Bayesian Networks (GBNs) are directed graphical models that are
 comprised of a set of nodes and edges. The nodes are our random variables,
 and they interrelate through directed edges. This allows us to
 encode complex relations between our features $\mathbf{x}$ that are not
-captured by the naive nayes classifer. We can exploit these relationships
+captured by the Naive Bayes classifier. We can exploit these relationships
 to decompose the joint distribution of the network as follows:
 \begin{equation}
   p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k)) \; = \; \prod_{k=1}^K \theta_{x_k \mid \mathbf{x}_{pa(k)}}
 \end{equation}
-Hence the joint distribtuion factorizes into a distribution for a node
+Hence the joint distribution factorizes into a distribution for a node
 conditioned on the parents.
 Given $N$ observations $\mathbf{x}_1, \hdots, \mathbf{x}_n$, we can express
 the likelihood function as:
@@ -462,7 +483,7 @@ the likelihood function as:
 
 GBNs have a closed form solution to the maximum likelihood estimates, which can
 be expressed as the counts per node states over the total number of samples
-with equivalent parent states. However, caution must be expercised in the
+with equivalent parent states. However, caution must be exercised in the
 construction of the network, where as the number of parents increase we
 encounter \textit{data fragmentation}. Limiting the number of parents can
 mitigate this issue by introducing \textit{sparsity}.
@@ -494,7 +515,7 @@ is composed of the following:
     Z(\mathbf{x}) \; = \; & \sum_{\mathbf{y}} \prod_{C_p \in \mathcal{C}} \prod_{\mathbf{\psi}_c \in C_p} \psi_c (\mathbf{x}_c, \mathbf{y}_c ; \theta_p) \\
   \end{aligned}
 \end{equation}
-where $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ is the
+Where $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ is the
 weight associated with it. $K$ is the number of features and $K(p)$ are the
 features found in factor $p$.
 Because our labels are discrete, we can write our
@@ -525,8 +546,8 @@ algorithm as described in Section \ref{sec:LR}.
 \section{Experimental Task}
 \label{sec:task}
 % describe how we measure what we measure with what we have
-For a single downsample size, we performed a 3-fold cross validation on
-the full 9,076 image set, using 908
+For a single downsample size, we performed a $3$-fold cross validation on
+the full $9,076$ image set, using $908$
 images randomly as test. This gives us three points of accuracy, in which we
 can average and extract confidence intervals around. Variables measured for the
 cross-validation include: training accuracy, testing accuracy, fit time, and
@@ -535,8 +556,8 @@ tractability.
 
 To effectively study these objective measures, we conduct this experiment
 per model per downsample size. Our choices of sizes
-included: 1, 2, 4, 8, 16, 32, 64, and 128. We did not test higher pixel sizes
-as 256x256 pixel images quickly became impossible due to memory constraints.
+included: $1$, $2$, $4$, $8$, $16$, $32$, $64$, and $128$. We did not test higher pixel sizes
+as $256 \times 256$ pixel images quickly became impossible due to memory constraints.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{figure}
