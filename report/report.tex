@@ -83,7 +83,7 @@
 % something about how this might be interesting
 Probabilistic graphical models have many applications in computer science,
 ranging from image segmentation to named entity recognition. However, these
-models can become unwieldily when our feature space $\mathbf{x}$ grows. In the
+models can become unwieldy when our feature space $\mathbf{x}$ grows. In the
 case of images, as we increase the number of pixels per row and column, the
 total number of features grows exponentially. For large images, if we treat
 the input space as a rasterized image, then the total number of features is
@@ -190,9 +190,20 @@ interpretability is lost, and the structure of the painting is unintelligible.
 
 \begin{figure}[h!]
   \centering
-  \includegraphics[height=4cm]{feature_graph.png}
-  \vspace{-5pt}
-  \caption{Exponential growth in the number features quickly makes modeling intractable.}
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[height=4cm]{feature_graph.png}
+    \caption{Growth in the Number of Features}
+    \label{fig:feature-graph}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.45\textwidth}
+    \centering
+    \includegraphics[height=4cm]{param_graph.png}
+    \caption{Growth in the Number of Model Parameters}
+    \label{fig:param-graph}
+  \end{subfigure}
+  \caption{As the image size increases, the problem quickly becomes intractable.}
   \label{fig:feature-size}
 \end{figure}
 
@@ -207,6 +218,7 @@ to another. This can be used to both decimate and expand the image. Several
 methods exists for this task, including linear, bicubic, nearest neighbor, and
 \textit{area relation}.
 
+% downsize this
 \begin{figure}[h!]
   \centering
   \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
@@ -331,6 +343,8 @@ are solely dependent on $y$ alone, and that $p(\mathbf{x})$ is constant.
 
 Here, $p(y)$ is the frequency of class $y$ is the training set.
 For our purposes we assume the features are normally distributed per class.
+This is beneficial for learning, as we learn class-wise means and variances,
+in contrast to the discrete case where each variable can take on $256$ states.
 Hence, our conditional feature likelihood is:
 \begin{equation}
   p(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
@@ -519,7 +533,7 @@ Where $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ i
 weight associated with it. $K$ is the number of features and $K(p)$ are the
 features found in factor $p$.
 Because our labels are discrete, we can write our
-feature functions $f_pk$ in terms of observation functions $q_{pk}$ to make
+feature functions $f_{pk}$ in terms of observation functions $q_{pk}$ to make
 \textit{label-observation features}.
 \begin{equation}
   f_{pk} (\mathbf{y}_c, \mathbf{x}_c) = \mathds{1} \{\mathbf{y}_c = \mathbf{\widetilde{y}}_c\} \cdot q_{pk}(\mathbf{x}_c)
@@ -560,24 +574,77 @@ included: $1$, $2$, $4$, $8$, $16$, $32$, $64$, and $128$. We did not test highe
 as $256 \times 256$ pixel images quickly became impossible due to memory constraints.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \begin{figure}
+%   \centering
+%   \begin{subfigure}[b]{0.47\textwidth}
+%     \centering
+%     \includegraphics[height=4.75cm]{nb_graph.png}
+%     \caption*{}
+%     \label{fig:nb_graph}
+%   \end{subfigure}
+%   ~
+%   \begin{subfigure}[b]{0.47\textwidth}
+%     \centering
+%     \includegraphics[height=4.75cm]{lr_graph.png}
+%     \caption*{}
+%     \label{fig:lr_graph}
+%   \end{subfigure}
+%   \vspace{-10pt}
+%   \caption{Training/Testing Accuracy Results for Baseline Models.}
+% \end{figure}
+
 \begin{figure}
   \centering
-  \begin{subfigure}[b]{0.47\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=4.75cm]{nb_graph.png}
+    \includegraphics[height=3.2cm]{nb_graph_score.png}
     \caption*{}
-    \label{fig:nb_graph}
+    \label{fig:nb_graph_score}
   \end{subfigure}
   ~
-  \begin{subfigure}[b]{0.47\textwidth}
+  \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=4.75cm]{lr_graph.png}
+    \includegraphics[height=3.2cm]{nb_graph_time.png}
     \caption*{}
-    \label{fig:lr_graph}
+    \label{fig:nb_graph_time}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{nb_graph_time_score.png}
+    \caption*{}
+    \label{fig:nb_graph_time_score}
   \end{subfigure}
   \vspace{-10pt}
-  \caption{Training/Testing Accuracy Results for Baseline Models.}
+  \caption{Generalization and Tractability Results for Naive Bayes.}
 \end{figure}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{lr_graph_score.png}
+    \caption*{}
+    \label{fig:lr_graph_score}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{lr_graph_time.png}
+    \caption*{}
+    \label{fig:lr_graph_time}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{lr_graph_time_score.png}
+    \caption*{}
+    \label{fig:lr_graph_time_score}
+  \end{subfigure}
+  \vspace{-10pt}
+  \caption{Generalization and Tractability Results for Logistic Regression.}
+\end{figure}
+
 
 \section{Results: Parameter Estimation}
 \label{sec:results-param}

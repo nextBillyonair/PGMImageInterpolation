@@ -87,12 +87,12 @@ def plot_pixels(data, title, colors=None, N=10000, s=4, alpha=0.4):
 
 def stack(imgs):
     (l1, d1), (l2, d2), (l3, d3), (l4, d4) = imgs.items()
-    train = np.stack(tuple(d1 + d2 + d3 + d4), axis=0)
-    test = [0 for _ in range(len(d1))] + \
+    data = np.stack(tuple(d1 + d2 + d3 + d4), axis=0)
+    label = [0 for _ in range(len(d1))] + \
            [1 for _ in range(len(d2))] + \
            [2 for _ in range(len(d3))] + \
            [3 for _ in range(len(d4))]
-    return train, test
+    return data, label
 
 def make_train_test_sets(imgs, p=0.1):
     train, test = stack(imgs)
@@ -103,20 +103,27 @@ def make_subplot(rows, cols):
     fig, axs = plt.subplots(rows, cols)
     return fig, axs
 
-def lineplot_ci(ax, sizes, mean, std, label, x_label, y_label, title, color=0):
+def lineplot_ci(ax, sizes, mean, std, label, x_label, y_label, title, color=0,
+                loc='lower right'):
     color = colors[color]
     Lower, Upper = get_ci(mean, std)
     ax.plot(sizes, mean, lw=1, label=label, color=color, marker='o', markersize=4)
     ax.fill_between(sizes, Upper, Lower, alpha=0.4, label="95% CI", color=color)
     ax.set_title(title)
-    ax.legend(loc = 'lower right')
+    ax.legend(loc = loc)
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
 
-def lineplot(ax, x_data, y_data, x_label, y_label, title, label, color=0):
-    color = colors[color]
-    ax.plot(x_data, y_data, lw = 2, label=label, color = color, alpha = 1)
+def lineplot(ax, x_data, y_data, x_label, y_label, title,
+             label, color=0, multi=False, loc='lower right'):
+    if multi:
+        for idx in range(len(y_data)):
+            ax.plot(x_data, y_data[idx], lw = 2, label=label[idx],
+                    color = colors[color[idx]], alpha = 1)
+    else:
+        ax.plot(x_data, y_data, lw = 2, label=label, color = colors[color], alpha = 1)
     ax.set_title(title)
+    ax.legend(loc = loc)
     ax.set_xlabel(x_label)
     ax.set_ylabel(y_label)
 
