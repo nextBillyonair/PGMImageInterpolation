@@ -117,22 +117,24 @@ can be broken down into either the \textit{generative} or the
     \centering
     \begin{subfigure}[t]{0.15\textwidth}
         \centering
+        \scalebox{0.8}{
         \tikz{ %
           \node[latent] (y) {$y$} ; %
           \node[obs, below=of y] (x) {$\mathbf{x}$} ; %
           \edge {y} {x} ; %
-        }
+        }}
         \caption*{Generative}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.15\textwidth}
         \centering
+        \scalebox{0.8}{
         \tikz{ %
           \node[obs] (x) {$\mathbf{x}$} ; %
           \node[latent, below=of x] (y) {$y$} ; %
           \node[factor, below=of x] (factor-node) {} ; %
           \factoredge[-] {x} {factor-node} {y} ; %
-        }
+        }}
         \caption*{Discriminative}
     \end{subfigure}
 \end{figure*}
@@ -192,18 +194,18 @@ interpretability is lost, and the structure of the painting is unintelligible.
   \centering
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{feature_graph.png}
+    \includegraphics[height=3.5cm]{feature_graph.png}
     \caption{Growth in the Number of Features}
     \label{fig:feature-graph}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{param_graph.png}
+    \includegraphics[height=3.5cm]{param_graph.png}
     \caption{Growth in the Number of Model Parameters}
     \label{fig:param-graph}
   \end{subfigure}
-  \caption{As the image size increases, the problem quickly becomes intractable.}
+  \caption{As the image size increases, the problem quickly becomes intractable}
   \label{fig:feature-size}
 \end{figure}
 
@@ -225,7 +227,7 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
   \label{fig:interpolation}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=5cm]{ori_img.png}
+    \includegraphics[height=4cm]{ori_img.png}
     \vspace{-13pt}
     \caption{Original Image ($498 \times 500$)}
     \label{fig:ori-image}
@@ -233,22 +235,21 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
   ~
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=5cm]{decimated_img.png}
+    \includegraphics[height=4cm]{decimated_img.png}
     \vspace{-13pt}
     \caption{Decimated Image ($64 \times 64$)}
     \label{fig:reduced-img}
   \end{subfigure}
 
-  \begin{subfigure}[b]{1.\textwidth}
+  \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{ori_pixel_plot.png}
+    \includegraphics[height=2.45cm]{ori_pixel_plot.png}
     \caption{Pixel Plot for the Original Image}
     \label{fig:ori-pixel-plot}
   \end{subfigure}
-
-  \begin{subfigure}[b]{1.\textwidth}
+  \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{decimated_pixel_plot.png}
+    \includegraphics[height=2.45cm]{decimated_pixel_plot.png}
     \caption{Pixel Plot for the Decimated Image}
     \label{fig:reduced-pixel-plot}
   \end{subfigure}
@@ -274,6 +275,7 @@ data as our test set ($8,168$ training, $908$ test).
 
  \begin{figure}[h!]
    \caption{Class Examples}
+   \vspace{-5pt}
    \label{fig:examples}
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
@@ -401,6 +403,7 @@ where $y_i$ is the true label and $y_c$ could be any label.
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Generative: Naive Bayes}
+        \scalebox{0.75}{
         \tikz{ %
           \centering
           \node[latent] (y) {$y$} ; %
@@ -408,12 +411,13 @@ where $y_i$ is the true label and $y_c$ could be any label.
           \node[obs, below=of y] (x2) {$x_2$} ; %
           \node[obs, below=of y, xshift=1cm] (x3) {$x_3$} ; %
           \edge {y} {x1, x2, x3} ; %
-        }
+        }}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Generative: General Bayesian Networks}
+        \scalebox{0.75}{
         \tikz{ %
           \centering
           \node[latent] (x1) {$x_1$} ; %
@@ -428,13 +432,14 @@ where $y_i$ is the true label and $y_c$ could be any label.
           \edge {x2} {x5,x6,x3};
           \edge {x3} {x6};
           \path[->] (x1) edge[bend left] node [right] {} (x3);
-        }
+        }}
     \end{subfigure}
 
     \vspace{15pt}
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Discriminative: Logistic Regression}
+        \scalebox{0.75}{
         \tikz{ %
           \centering
           \node[latent] (y) {$y$} ; %
@@ -447,12 +452,13 @@ where $y_i$ is the true label and $y_c$ could be any label.
           \factoredge[-] {y} {factor-node-1} {x1}; %
           \factoredge[-] {y} {factor-node-2} {x2}; %
           \factoredge[-] {y} {factor-node-3} {x3}; %
-        }
+        }}
     \end{subfigure}%
     ~
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Discriminative: Conditional Random Fields}
+        \scalebox{0.75}{
         \tikz{ %
           \centering
           \node[latent] (x1) {$x_1$} ; %
@@ -470,7 +476,7 @@ where $y_i$ is the true label and $y_c$ could be any label.
           \factoredge[-] {x1} {f2} {x3, x2}; %
           \factoredge[-] {x4} {f3} {x2, x5}; %
           \factoredge[-] {x3} {f4} {x2, x6}; %
-        }
+        }}
     \end{subfigure}
 \end{figure}
 
@@ -537,6 +543,7 @@ expected value of the conditional distribution.
 
 \begin{figure}
   \centering
+  \scalebox{0.75}{
   \tikz{ %
     \centering
     \node (R) {$R_{i,j}$} ; %
@@ -558,8 +565,8 @@ expected value of the conditional distribution.
     \path[->] (R) edge[bend left] node [right] {} (R3);
     \path[->] (G) edge[bend left] node [right] {} (G3);
     \path[->] (B) edge[bend left] node [right] {} (B3);
-  }
-  \caption{Hybrid Bayesian Network Model Architecture}
+  }}
+  \caption{Hybrid Bayesian Network Model Architecture, for Pixel $ij$ with color channels $RGB$}
   \label{fig:net-structure}
 \end{figure}
 
@@ -641,16 +648,11 @@ fragmentation.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Results: Baseline Models}
-\label{sec:results-param}
-\subsection{Parameter Estimation}
-\subsection{Inference}
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\label{sec:results-baseline}
+The baseline models, while naive in its assumptions, did reasonably well in
+terms of generalization ability and tractability.
 
-\section{Results: General Models}
-\label{sec:results-inference}
-\subsection{Parameter Estimation}
-\subsection{Inference}
 
 \begin{figure}
   \centering
@@ -675,7 +677,8 @@ fragmentation.
     \label{fig:nb_graph_time_score}
   \end{subfigure}
   \vspace{-10pt}
-  \caption{Generalization and Tractability Results for Naive Bayes.}
+  \caption{Generalization and Tractability Results for Gaussian Naive Bayes}
+  \label{fig:GNB}
 \end{figure}
 
 \begin{figure}
@@ -701,8 +704,51 @@ fragmentation.
     \label{fig:lr_graph_time_score}
   \end{subfigure}
   \vspace{-10pt}
-  \caption{Generalization and Tractability Results for Logistic Regression.}
+  \caption{Generalization and Tractability Results for Multinomial Logistic Regression}
+  \label{fig:MLR}
 \end{figure}
+
+For the Gaussian naive bayes model (Figure \ref{fig:GNB}), we see two distinct trends.
+First, the model performs equivalently in the training and testing phase, with
+similiar accuracy scores. However, compared to the logistic regression
+(Figure \ref{fig:MLR}), the naive bayes model takes longer to converge to a
+stationary accuracy, even when the number of features is growning exponentially.
+
+The time to fit the naive bayes was also significantly smaller than the multinomial
+logistic regression. This effect stems from the lack of a quasi second-order
+optimzation approach that logistic regression uses through L-BFGS. However,
+logistic regression was faster in inference, since naive bayes computes
+the gaussian likelihood for every feature $x_{ijk}$ before multiplying all
+the conditonal probabilities to make a prediction.
+
+From Figures \ref{fig:GNB} and \ref{fig:MLR}, we see that no noticable gains
+are made for either model for downsampled images larger than $16 \times 16$,
+and in the case of logistic regression, can even overfit to noise. This stems
+from the fact that image interpolation creates robust, strong estimators of
+indivudal features, reducing noise and helping generalization. However,
+it is important to note the significant loss in accuracy when the iamge is
+decimated to smaller sizes than $16 \times 16$, as information is lost. While
+the models do surprising well with a single color, these results show that
+image interpolation can effectly improve generalization and tractability of
+raw feature training on images.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results: General Models}
+\label{sec:results-general}
+The general models followed similiar trends to our baselines.
+
+For the hybrid baesyian network (Figure \ref{fig:HBN}), initial generalization
+ability was improved
+from inter-feature connections. However, this formulation proved to be intractable
+after $32 \times 32$. Hence, while we improve both train and test scores through
+complex interactions, detailed in Figure \ref{fig:net-structure}, this is
+offset by increased inference times. Parameter estimation proved to be effective,
+as each node learned a small subset of coefficients through linear regression
+on continuous parents and induced sparsity. However, this formulation hindered
+inference, and the time to predict is exponentially larger than either the
+conditional random field or the baselines.
 
 \begin{figure}
   \centering
@@ -710,25 +756,78 @@ fragmentation.
     \centering
     \includegraphics[height=3.2cm]{bn_graph_score.png}
     \caption*{}
-    \label{fig:lr_graph_score}
+    \label{fig:bn_graph_score}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \includegraphics[height=3.2cm]{bn_graph_time.png}
     \caption*{}
-    \label{fig:lr_graph_time}
+    \label{fig:bn_graph_time}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
     \includegraphics[height=3.2cm]{bn_graph_time_score.png}
     \caption*{}
-    \label{fig:lr_graph_time_score}
+    \label{fig:bn_graph_time_score}
   \end{subfigure}
   \vspace{-10pt}
-  \caption{Generalization and Tractability Results for Hybrid Bayesian Network.}
+  \caption{Generalization and Tractability Results for a Hybrid Bayesian Network}
+  \label{fig:HBN}
 \end{figure}
+
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{crf_graph_score.png}
+    \caption*{}
+    \label{fig:crf_graph_score}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{crf_graph_time.png}
+    \caption*{}
+    \label{fig:crf_graph_time}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{crf_graph_time_score.png}
+    \caption*{}
+    \label{fig:crf_graph_time_score}
+  \end{subfigure}
+  \vspace{-10pt}
+  \caption{Generalization and Tractability Results for a Conditional Random Field}
+  \label{fig:CRF}
+\end{figure}
+
+The conditonal random field (Figure \ref{fig:CRF}) took longer to train than
+any other model, and yet
+had a comparable generalzaiton curve to logistic regression, while outperforming
+the generative models. Logistic regression performed better in train score, yet
+had similiar test scores. The increased train and inference times result from
+a more complicated model and optimzation problem. Since our CRF uses L-BFGS,
+the estimates to the hessian are more expensive, thus making parameter estimation
+difficult. Inference was faster than the hybrid baesyian network.
+
+\section{Results: General Findings}
+Discriminative models learned better than their generative counterparts, as they
+model the conditonal probability $p(y\mid \mathbf{x})$ directly. Hence, they are
+less concerned with modeling the features, and results in a lower parameter count.
+
+Image interpolation can effectively reduce the size of the data and models
+by creating robust features invariant to noise. Caution must be exerted if too
+much information is loss, and our results may be different if the orignal images
+were of different sizes, i.e. $100 \times 100$ vs. $1000 \times 1000$.
+
+Adding more complex interactions does not help our learning task, and in some cases
+hinders our performance, both in generalization and tractability. Perhaps image
+interpolation encodes all relavent interactions between pixels in the orignal
+image that we do not need to account for with general graphs over naive assumptions.
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -736,9 +835,14 @@ fragmentation.
 \label{sec:conclusion}
 As we can see from our experiments, image interpolation can be a useful technique
 for dimensionality reduction when using graphical models for classifcation.
-As our original $500 \times 500$ images contained over $750,000$ nodes, a simple
+As our original $500 \times 500$ images contained over $750,000$ features, a simple
 reduction use pixel sampling yields comparable results when reduced to
-$16 \times 16$ ($768$ features).
+$16 \times 16$ ($768$ features). However, image decimation can result in siginifcant
+generalization errors from information loss. Using image interpolation as
+a dimensionality reduction technique thus perserves data intelligently and
+generalization ability while improving the time it takes to perfrom
+parameter estimation and inference in graphical models. Discriminative models
+made the most gains from this technique, in contrast to generative models.
 
 % talk about discrim vs gen
 
@@ -767,26 +871,26 @@ is influenced by increasing the number of features.
 \bibliographystyle{abbrv}
 \bibliography{report}
 
-\appendix
-\section{Number of Parameters}
-\subsection{Baseline Models}
-Since our baseline models assume independence between each feature, the formulas
-for calculating the number of parameters is easy.
-\begin{equation}
-  \begin{aligned}
-    \text{Naive Bayes}(s, y) \; = & \; 2 \cdot y \cdot (3 s^2) + y \\
-    \text{Logistic Regression}(s, y) \; = & \; 3 s^2 + y \\
-  \end{aligned}
-\end{equation}
-Here, $y$ is the number of classes, and $s$ is the downsample size, i.e. 1, 2, 16.
-\subsection{General Models}
-The general case is more difficult, as parameters are now dependent on the number
-of parents. For hybrid models of discrete and continuous data, assuming one
-discrete node with $y$ classes and continuous nodes $x_i \in \mathbf{x}$. Let
-$|pa_c(x_i)|$ represent the number of continuous parents of $x_i$. The number of
-parameters for a hybrid model of $\mathbf{x}$ nodes is:
-\begin{equation}
-  \text{Hybrid Model}(\mathbf{x}, y) \; = \; y + 2 \cdot y \cdot \sum_{x_i \in \mathbf{x}} \big( 1 + |pa_c (x_i)| \big)
-\end{equation}
+% \appendix
+% \section{Number of Parameters}
+% \subsection{Baseline Models}
+% Since our baseline models assume independence between each feature, the formulas
+% for calculating the number of parameters is easy.
+% \begin{equation}
+%   \begin{aligned}
+%     \text{Naive Bayes}(s, y) \; = & \; 2 \cdot y \cdot (3 s^2) + y \\
+%     \text{Logistic Regression}(s, y) \; = & \; 3 s^2 + y \\
+%   \end{aligned}
+% \end{equation}
+% Here, $y$ is the number of classes, and $s$ is the downsample size, i.e. 1, 2, 16.
+% \subsection{General Models}
+% The general case is more difficult, as parameters are now dependent on the number
+% of parents. For hybrid models of discrete and continuous data, assuming one
+% discrete node with $y$ classes and continuous nodes $x_i \in \mathbf{x}$. Let
+% $|pa_c(x_i)|$ represent the number of continuous parents of $x_i$. The number of
+% parameters for a hybrid model of $\mathbf{x}$ nodes is:
+% \begin{equation}
+%   \text{Hybrid Model}(\mathbf{x}, y) \; = \; y + 2 \cdot y \cdot \sum_{x_i \in \mathbf{x}} \big( 1 + |pa_c (x_i)| \big)
+% \end{equation}
 
 \end{document}
