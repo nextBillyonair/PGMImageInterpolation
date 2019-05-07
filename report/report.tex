@@ -68,7 +68,7 @@
   In statistical classification, there are two main approaches to learning:
   \textit{generative} and \textit{discriminative}. In computer vision,
   \textit{image interpolation} is a method to rescale images analogous to
-  dimensionality reduction. We explore the generalization ability of
+  dimensionality reduction. We explore the generalization and tractability of
   \textit{generative-discriminative pairs} when interpolating images to smaller
   sizes.
 \end{abstract}
@@ -318,7 +318,7 @@ with complex models.
 % Describe our pairs
 \section{Baseline Models}
 \label{sec:baseline-models}
-\subsection{Naive Bayes}
+\subsection{Gaussian Naive Bayes}
 \label{sec:NB}
 Naive Bayes is a simple generative classifier based on applying Bayes' theorem
 to extract the conditional likelihood $p(y \mid \mathbf{x})$. Its' fundamental
@@ -362,7 +362,7 @@ $\theta_c$. Hence the MLE estimates for $N$ samples are:
 \end{equation}
 where $N_c = \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} $, or the number
 of data points belonging to class $c$ \cite{murphy}.
-\subsection{Logistic Regression}
+\subsection{Multinomial Logistic Regression}
 \label{sec:LR}
 Logistic Regression is the discriminative analog to the Naive Bayes
 classifier, sometimes referred to as the \textit{maxmimum-entropy classifer}
@@ -476,34 +476,93 @@ where $y_i$ is the true label and $y_c$ could be any label.
 
 \section{General Models}
 \label{sec:general-models}
-\subsection{General Discrete Bayesian Networks (GBNs)}
-\label{sec:GBN}
-General Discrete Bayesian Networks (GBNs) are directed graphical models that are
+\subsection{Hybrid Bayesian Networks}
+\label{sec:BN}
+General Bayesian Networks (GBNs) are directed graphical models that are
 comprised of a set of nodes and edges. The nodes are our random variables,
 and they interrelate through directed edges. This allows us to
 encode complex relations between our features $\mathbf{x}$ that are not
 captured by the Naive Bayes classifier. We can exploit these relationships
-to decompose the joint distribution of the network as follows:
+to decompose the joint distribution into factors conditioned on the node's
+parents \cite{murphy}.
 \begin{equation}
-  p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k)) \; = \; \prod_{k=1}^K \theta_{x_k \mid \mathbf{x}_{pa(k)}}
-\end{equation}
-Hence the joint distribution factorizes into a distribution for a node
-conditioned on the parents.
-Given $N$ observations $\mathbf{x}_1, \hdots, \mathbf{x}_n$, we can express
-the likelihood function as:
-\begin{equation}
-  \mathcal{L} \; = \; \prod_{i=1}^{N} \prod_{k=1}^{K} \theta_{x_{k}^{i} \mid \mathbf{x}_{pa(k)}^{i}}
+  p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k))
 \end{equation}
 
-GBNs have a closed form solution to the maximum likelihood estimates, which can
-be expressed as the counts per node states over the total number of samples
-with equivalent parent states. However, caution must be exercised in the
-construction of the network, where as the number of parents increase we
-encounter \textit{data fragmentation}. Limiting the number of parents can
-mitigate this issue by introducing \textit{sparsity}.
+Since our labels are discrete and the data is continuous, we use
+Hybrid Bayesian Networks. As defined in Koller \& Friedman \cite{koller},
+these networks are known as \textit{Conditional Linear Gaussian (CLG)} models if
+every discrete variable has only discrete parents and every continuous variable
+is represented as a CLG Conditional Probability Distribution (CPD).
+
+Continuous nodes make use of the multivariate gaussian distribution, parameterized
+by a mean vector $\mathbf{\mu}$ and a symmetric square covariance matrix
+$\mathbf{\Sigma}$.
 \begin{equation}
-  \hat{\theta}_{x_k \mid \mathbf{x}_{pa(k)}} = \frac{ \sum_{i=1}^{N} \mathds{1} \{ x_{k}^{i} = x_k \} \cdot \mathds{1} \{\mathbf{x}_{pa(k)}^{i} = \mathbf{x}_{pa(k)} \} }{ \sum_{i=1}^{N} \mathds{1} \{\mathbf{x}_{pa(k)}^{i} = \mathbf{x}_{pa(k)} \} }
+  p(\mathbf{x}; \mathbf{\mu}, \mathbf{\Sigma}) \; = \; \frac{1}{(2 \pi)^{n/2} \mid \Sigma \mid^{1/2}} \exp \Big\{ -\frac{1}{2} (\mathbf{x} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{x} - \mathbf{\mu})  \Big\}
 \end{equation}
+The conditional linear Gaussian CPD for a continuous variable $x_j$, discrete
+parents $\mathbf{U} = \{U_1, \hdots, U_M\}$, continuous parents
+$\mathbf{C} = \{C_1, \hdots, C_K\}$ is, for every value
+$\mathbf{u} \in Val(\mathbf{U})$ with $k+1$ coefficients
+$a_{\mathbf{u},0}, \hdots, a_{\mathbf{u}, k}$ and variance
+$\sigma^2_{\mathbf{u}}$:
+\begin{equation}
+  p(x_j \mid \mathbf{u}, \mathbf{c}) \; = \; \mathcal{N} \Bigg(a_{\mathbf{u},0} + \sum_{k=1}^K a_{\mathbf{u},k} \cdot c_k \; ; \; \sigma^2_{\mathbf{u}}  \Bigg)
+\end{equation}
+The log likelihood function $\ell$ for a continuous node $X_i$ is:
+\begin{equation}
+  \ell \; = \; \log \mathcal{L} \; = \; \sum_{i=1}^{N} \Bigg\{ -\frac{1}{2} \log (2\pi \sigma^2_{\mathbf{u}}) - \frac{1}{2} \cdot \frac{1}{\sigma^2_{\mathbf{u}}} \Bigg[ a_{\mathbf{u},0} + \sum_{k=1}^K a_{\mathbf{u},k} \cdot c_k^i - x_j^i \Bigg]^2 \Bigg\}
+\end{equation}
+The MLE parameters are obtained by ordinary linear regression of each node $x_j$
+on its continuous parents $c \in \mathbf{C}$, for each class value
+$\mathbf{u} \in \{0, 1, 2, 3\}$ \cite{koller}.
+
+In contrast, our discrete node is the class label $y$, which is just the frequency.
+The maximum likelihood estimate is:
+\begin{equation}
+  \hat{\theta}_{y_c} = \frac{ \sum_{i=1}^{N} \mathds{1} \{ y^{i} = y_c \} }{ \sum_{i=1}^{N} \sum_{y_k} \mathds{1} \{y^i = y_k\} } = \frac{\sum_{i=1}^{N} \mathds{1} \{ y^{i} = y_c \}}{N}
+\end{equation}
+Here, $y_c$ is the class being estimated, $y^i$ is the label for the $i$-th sample,
+and $y_k$ are the other classes. $N$ is the number of samples.
+
+We elected to use a hybrid model as the discrete case led to
+\textit{data fragmentation}, and not every state configuration can be seen
+in the training set.
+
+Inference is performed by averaging likelihood weighting simulations using
+$n=500$ random samples. For discrete values, the prediction is the highest
+conditional probability. The predicted value of a continuous value is the
+expected value of the conditional distribution.
+
+\begin{figure}
+  \centering
+  \tikz{ %
+    \centering
+    \node (R) {$R_{i,j}$} ; %
+    \node[right=of R] (G) {$G_{i,j}$};
+    \node[right=of G] (B) {$B_{i,j}$};
+    \node[below=of R] (R2) {$R_{i+1, j}$} ; %
+    \node[below=of G] (G2) {$G_{i+1, j}$} ; %
+    \node[below=of B] (B2) {$B_{i+1, j}$} ; %
+    \node[right=of B] (R3) {$R_{i, j+1}$} ; %
+    \node[right=of R3] (G3) {$G_{i, j+1}$} ; %
+    \node[right=of G3] (B3) {$B_{i, j+1}$} ; %
+
+    \edge {R} {G};
+    \path[->] (R) edge[bend left] node [right] {} (B);
+    \edge {G} {B};
+    \edge {R} {R2};
+    \edge {G} {G2};
+    \edge {B} {B2};
+    \path[->] (R) edge[bend left] node [right] {} (R3);
+    \path[->] (G) edge[bend left] node [right] {} (G3);
+    \path[->] (B) edge[bend left] node [right] {} (B3);
+  }
+  \caption{Hybrid Bayesian Network Model Architecture}
+  \label{fig:net-structure}
+\end{figure}
+
 \subsection{Conditional Random Fields (CRFs)}
 \label{sec:CRF}
 Conditional Random Fields (CRFs) are discriminative graphical models that
@@ -572,26 +631,26 @@ To effectively study these objective measures, we conduct this experiment
 per model per downsample size. Our choices of sizes
 included: $1$, $2$, $4$, $8$, $16$, $32$, $64$, and $128$. We did not test higher pixel sizes
 as $256 \times 256$ pixel images quickly became impossible due to memory constraints.
+For the general models, any test on $32 \times 32$ or larger images was intractable
+due to prediction costs.
+
+All images were rescaled such that its pixel color channels are ranged from
+$[0, 1]$, and we assume our data is continuous instead of discrete to avoid data
+fragmentation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% \begin{figure}
-%   \centering
-%   \begin{subfigure}[b]{0.47\textwidth}
-%     \centering
-%     \includegraphics[height=4.75cm]{nb_graph.png}
-%     \caption*{}
-%     \label{fig:nb_graph}
-%   \end{subfigure}
-%   ~
-%   \begin{subfigure}[b]{0.47\textwidth}
-%     \centering
-%     \includegraphics[height=4.75cm]{lr_graph.png}
-%     \caption*{}
-%     \label{fig:lr_graph}
-%   \end{subfigure}
-%   \vspace{-10pt}
-%   \caption{Training/Testing Accuracy Results for Baseline Models.}
-% \end{figure}
+
+\section{Results: Baseline Models}
+\label{sec:results-param}
+\subsection{Parameter Estimation}
+\subsection{Inference}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{Results: General Models}
+\label{sec:results-inference}
+\subsection{Parameter Estimation}
+\subsection{Inference}
 
 \begin{figure}
   \centering
@@ -645,23 +704,58 @@ as $256 \times 256$ pixel images quickly became impossible due to memory constra
   \caption{Generalization and Tractability Results for Logistic Regression.}
 \end{figure}
 
-
-\section{Results: Parameter Estimation}
-\label{sec:results-param}
-\subsection{Baseline}
-\subsection{General}
+\begin{figure}
+  \centering
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{bn_graph_score.png}
+    \caption*{}
+    \label{fig:lr_graph_score}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{bn_graph_time.png}
+    \caption*{}
+    \label{fig:lr_graph_time}
+  \end{subfigure}
+  ~
+  \begin{subfigure}[b]{0.3\textwidth}
+    \centering
+    \includegraphics[height=3.2cm]{bn_graph_time_score.png}
+    \caption*{}
+    \label{fig:lr_graph_time_score}
+  \end{subfigure}
+  \vspace{-10pt}
+  \caption{Generalization and Tractability Results for Hybrid Bayesian Network.}
+\end{figure}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\section{Results: Inference}
-\label{sec:results-inference}
-\subsection{Baseline}
-\subsection{General}
-
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-\section{Conclusion and Future Work}
+\section{Conclusion}
 \label{sec:conclusion}
+As we can see from our experiments, image interpolation can be a useful technique
+for dimensionality reduction when using graphical models for classifcation.
+As our original $500 \times 500$ images contained over $750,000$ nodes, a simple
+reduction use pixel sampling yields comparable results when reduced to
+$16 \times 16$ ($768$ features).
+
+% talk about discrim vs gen
+
+\section{Future Work}
+Over the course if this project, several ideas would have been interesting to
+explore, but where not pursued due to the scope of the research question. First,
+a natural area of exploration would be to rerun the experiments using color
+quantization, a technique used to reduce the number of colors in an image. This
+is reduces the total number of discrete states each color channel can take on.
+
+A second proposal would be to experiment with structure learning algorithms to
+create networks that take the distribution of colors per class into account.
+Our model was created with the intention of injecting sparsity while still
+retaining relevant connections between pixels.
+
+A third avenue would be to examine how interclass confusion in inference
+is influenced by increasing the number of features.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -672,5 +766,27 @@ as $256 \times 256$ pixel images quickly became impossible due to memory constra
 
 \bibliographystyle{abbrv}
 \bibliography{report}
+
+\appendix
+\section{Number of Parameters}
+\subsection{Baseline Models}
+Since our baseline models assume independence between each feature, the formulas
+for calculating the number of parameters is easy.
+\begin{equation}
+  \begin{aligned}
+    \text{Naive Bayes}(s, y) \; = & \; 2 \cdot y \cdot (3 s^2) + y \\
+    \text{Logistic Regression}(s, y) \; = & \; 3 s^2 + y \\
+  \end{aligned}
+\end{equation}
+Here, $y$ is the number of classes, and $s$ is the downsample size, i.e. 1, 2, 16.
+\subsection{General Models}
+The general case is more difficult, as parameters are now dependent on the number
+of parents. For hybrid models of discrete and continuous data, assuming one
+discrete node with $y$ classes and continuous nodes $x_i \in \mathbf{x}$. Let
+$|pa_c(x_i)|$ represent the number of continuous parents of $x_i$. The number of
+parameters for a hybrid model of $\mathbf{x}$ nodes is:
+\begin{equation}
+  \text{Hybrid Model}(\mathbf{x}, y) \; = \; y + 2 \cdot y \cdot \sum_{x_i \in \mathbf{x}} \big( 1 + |pa_c (x_i)| \big)
+\end{equation}
 
 \end{document}
