@@ -1,5 +1,7 @@
 from sklearn.naive_bayes import MultinomialNB, GaussianNB
 from sklearn.model_selection import cross_validate
+from sklearn.model_selection import train_test_split
+import time
 
 class NaiveBayes():
 
@@ -21,9 +23,21 @@ class NaiveBayes():
     def predict(self, x_test):
         return self.model.predict(x_test)
 
-    def evaluate(self, data, labels, cv=3):
-        self.metrics = cross_validate(self.model, data, labels, cv=cv,
-                                      n_jobs=-1, return_train_score=True)
+    def evaluate(self, X, Y, cv=3):
+        self.metrics = {'fit_time':[], 'score_time':[], 'train_score':[], 'test_score':[]}
+        for i in range(cv):
+            self.model = GaussianNB()
+            X_train, X_test, y_train, y_test = train_test_split(X, Y, test_size=0.1)
+            start = time.time()
+            self.model.fit(X_train, y_train)
+            self.metrics['fit_time'].append(time.time() - start)
+            self.metrics['train_score'].append(self.model.score(X_train, y_train))
+            start = time.time()
+            self.metrics['test_score'].append(self.model.score(X_test, y_test))
+            self.metrics['score_time'].append(time.time() - start)
+
+        # self.metrics = cross_validate(self.model, data, labels, cv=cv,
+        #                               n_jobs=-1, return_train_score=True)
 
     def score_by_class(self, x_test, y_test):
         class_correct = list(0. for i in range(4))

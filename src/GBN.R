@@ -1,9 +1,11 @@
 
 library(bnlearn)
 
+get_index <- function(i, j, k, n_col) {
+  return(3*i*n_col + 3*j + k + 2)
+}
 
-
-mydata <- read.csv("/Users/bill/Documents/PGMProject/src/data/resized_data_scaled_128.csv")
+mydata <- read.csv("/Users/bill/Documents/PGMProject/src/data/resized_data_scaled_32.csv")
 #mydata[] <- lapply( mydata, factor)
 mydata$y <- as.factor(mydata$y)
 
@@ -19,35 +21,81 @@ adj = matrix(0L, ncol = nvars, nrow = nvars,
              dimnames = list(col_names, col_names))
 
 # simple naive bayes
-for (i in 2:nvars) {
-  adj[col_names[1], col_names[i]] = 1L
-  row_n = (i-1) / 3 / n_rows
-  col_n = (i-1) / 3 %% n_cols
-  #if (i + n_cols*3 <= nvars) {
-  #  adj[col_names[i], col_names[i + n_cols*3]] = 1L
-  #}
-  #if (i + n_rows*3 + 3 <= nvars) {
-  #  adj[col_names[i], col_names[i + n_rows*3 + 3]] = 1L
-  #}
-  #if (i+3 <= nvars){
-  #  adj[col_names[i], col_names[i+3]] = 1L
-  #}
+for (i in 0:(n_rows-1)) {
+  for (j in 0:(n_cols-1)) {
+    for (k in 0:2) {
+      idx <- get_index(i,j,k,n_cols)
+      adj[col_names[1], col_names[idx]] = 1L
+      if (k==0){
+        adj[col_names[idx], col_names[get_index(i,j, 1, n_cols)]] = 1L
+        adj[col_names[idx], col_names[get_index(i,j, 2, n_cols)]] = 1L
+      }
+      if (k==1) {
+        adj[col_names[idx], col_names[get_index(i,j, 2, n_cols)]] = 1L
+      }
+      if (i+1 < n_rows) {
+        adj[col_names[idx], col_names[get_index(i+1,j, k, n_cols)]] = 1L 
+      }
+      if (j+1 < n_cols) {
+        adj[col_names[idx], col_names[get_index(i,j+1, k, n_cols)]] = 1L
+      }
+    }
+  }
 }
 
 
 amat(dag) = adj
 
 nparams(dag, mydata)
-
 #graphviz.plot(dag)
 
-fit = bn.fit(dag, mydata)
+set.seed(42)
 
-k <- 3
-xval <- bn.cv(mydata, bn=dag, loss="pred-lw-cg", loss.args=list(target='y'), method="hold-out", k=k, m=908)
-OBS = unlist(lapply(xval, `[[`, "observed"))
-PRED = unlist(lapply(xval, `[[`, "predicted"))
-sum(OBS==PRED, na.rm = TRUE) / (908*k)
-1 - sum(OBS==PRED, na.rm = TRUE) / (908*k)
-mean <- 1-(xval[[1]]$loss + xval[[2]]$loss + xval[[3]]$loss)/k
-std <- sd(c(xval[[1]]$loss, xval[[2]]$loss, xval[[3]]$loss))
+K <- 3
+
+train_score <- c(0,0,0)
+test_score <- c(0,0,0)
+fit_time <- c(0,0,0)
+score_time <- c(0,0,0)
+
+for (i in 1:K) {
+  ## 75% of the sample size
+  train_size <- floor(0.90 * nrow(mydata))
+  test_size <- nrow(mydata) - train_size
+  
+  train_ind <- sample(seq_len(nrow(mydata)), size = train_size)
+  
+  train <- mydata[train_ind, ]
+  test <- mydata[-train_ind, ]
+  
+  print("FIT")
+  start_time <- proc.time()
+  fit <- bn.fit(dag, train)
+  fit_time[i] <- (proc.time() - start_time)[[3]]
+  
+  print("Pred")
+  train_pred <- predict(fit, "y", train, 'bayes-lw')
+  
+  start_time <- proc.time()
+  test_pred <- predict(fit, "y", test, 'bayes-lw')
+  score_time[i] <- (proc.time() - start_time)[[3]]
+  print("Pred")
+  
+  test_score[i] <- sum(test[['y']] == test_pred, na.rm = TRUE) / test_size
+  train_score[i] <- sum(train[['y']] == train_pred, na.rm = TRUE) / train_size
+  print("Done")
+  print(c(fit_time[i], score_time[i], train_score[i], test_score[i]))
+}
+
+mean_train_score <- mean(train_score)
+mean_test_score <- mean(test_score)
+mean_fit_time <- mean(fit_time)
+mean_score_time <- mean(score_time)
+
+std_train_score <- sd(train_score)
+std_test_score <- sd(test_score)
+std_fit_time <- sd(fit_time)
+std_score_time <- sd(score_time)
+
+print(c(mean_fit_time, std_fit_time, mean_score_time, std_score_time, mean_train_score, std_train_score, mean_test_score, std_test_score))
+
