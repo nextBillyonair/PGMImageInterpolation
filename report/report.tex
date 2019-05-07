@@ -42,6 +42,7 @@
 \newcolumntype{L}[1]{>{\raggedright\arraybackslash}p{#1}}
 \usepackage{caption}
 \usepackage{subcaption}
+\urlstyle{same}
 
 \title{The Effect of Image Interpolation on the Generalization of Generative and Discriminative Models}
 
@@ -101,8 +102,8 @@ We experiment with this concept through two approaches: \textit{generative}
 and \textit{discriminative} learning. Both approaches are outlined in Section
 \ref{sec:classification}. Our models are formally described in Section
 \ref{sec:baseline-models} and Section \ref{sec:general-models}. Our results
-are presented for both the parameter estimation (Section \ref{sec:results-param})
-and inference (Section \ref{sec:results-inference}) tasks.
+are presented for all models experiments (Section \ref{sec:results-baseline} and
+\ref{sec:results-general}).
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % steal from proposal
@@ -375,7 +376,7 @@ with $Z(\mathbf{x})$ as the normalizing partition function.
   p(y \mid \mathbf{x}) = \frac{1}{Z(\mathbf{x})} \exp \Bigg\{ \sum_{j=1}^K \theta_k f_k\left( y, \mathbf{x} \right) \Bigg\}
 \end{equation}
 
-McCallum et. al formulates the logistic regression model, parameterized by
+McCallum et. al formulates the Logistic Regression model, parameterized by
 weights $\theta \in \mathbb{R}^K$, in which a single set of weights is shared
 across all the classes \cite{McCallumCRF}. This is achieved through a set of
 feature functions that are nonzero for a single class and is defined as follows:
@@ -575,7 +576,7 @@ expected value of the conditional distribution.
 Conditional Random Fields (CRFs) are discriminative graphical models that
 can model output variables $\mathbf{y}$ conditioned on features $\mathbf{x}$
 compactly, in contrast to generative models. CRFs are natural extensions
-to logistic regression for general graphs. We describe the model formulation,
+to Logistic Regression for general graphs. We describe the model formulation,
 parameter estimation, and inference tasks as outlined by McCallum et. al \cite{McCallumCRF},
 and introduced by Lafferty et. al \cite{CRF}.
 
@@ -708,28 +709,28 @@ terms of generalization ability and tractability.
   \label{fig:MLR}
 \end{figure}
 
-For the Gaussian naive bayes model (Figure \ref{fig:GNB}), we see two distinct trends.
+For the Gaussian Naive Bayes model (Figure \ref{fig:GNB}), we see two distinct trends.
 First, the model performs equivalently in the training and testing phase, with
-similiar accuracy scores. However, compared to the logistic regression
-(Figure \ref{fig:MLR}), the naive bayes model takes longer to converge to a
-stationary accuracy, even when the number of features is growning exponentially.
+similar accuracy scores. However, compared to the Logistic Regression
+(Figure \ref{fig:MLR}), the Naive Bayes model takes longer to converge to a
+stationary accuracy, even when the number of features is growing exponentially.
 
-The time to fit the naive bayes was also significantly smaller than the multinomial
-logistic regression. This effect stems from the lack of a quasi second-order
-optimzation approach that logistic regression uses through L-BFGS. However,
-logistic regression was faster in inference, since naive bayes computes
+The time to fit the Naive Bayes was also significantly smaller than the multinomial
+Logistic Regression. This effect stems from the lack of a quasi second-order
+optimization approach that Logistic Regression uses through L-BFGS. However,
+Logistic Regression was faster in inference, since Naive Bayes computes
 the gaussian likelihood for every feature $x_{ijk}$ before multiplying all
-the conditonal probabilities to make a prediction.
+the conditional probabilities to make a prediction.
 
-From Figures \ref{fig:GNB} and \ref{fig:MLR}, we see that no noticable gains
+From Figures \ref{fig:GNB} and \ref{fig:MLR}, we see that no noticeable gains
 are made for either model for downsampled images larger than $16 \times 16$,
-and in the case of logistic regression, can even overfit to noise. This stems
+and in the case of Logistic Regression, can even overfit to noise. This stems
 from the fact that image interpolation creates robust, strong estimators of
-indivudal features, reducing noise and helping generalization. However,
-it is important to note the significant loss in accuracy when the iamge is
+individual features, reducing noise and helping generalization. However,
+it is important to note the significant loss in accuracy when the image is
 decimated to smaller sizes than $16 \times 16$, as information is lost. While
 the models do surprising well with a single color, these results show that
-image interpolation can effectly improve generalization and tractability of
+image interpolation can effectively improve generalization and tractability of
 raw feature training on images.
 
 
@@ -737,9 +738,9 @@ raw feature training on images.
 
 \section{Results: General Models}
 \label{sec:results-general}
-The general models followed similiar trends to our baselines.
+The general models followed similar trends to our baselines.
 
-For the hybrid baesyian network (Figure \ref{fig:HBN}), initial generalization
+For the Hybrid Bayesian Network (Figure \ref{fig:HBN}), initial generalization
 ability was improved
 from inter-feature connections. However, this formulation proved to be intractable
 after $32 \times 32$. Hence, while we improve both train and test scores through
@@ -748,7 +749,7 @@ offset by increased inference times. Parameter estimation proved to be effective
 as each node learned a small subset of coefficients through linear regression
 on continuous parents and induced sparsity. However, this formulation hindered
 inference, and the time to predict is exponentially larger than either the
-conditional random field or the baselines.
+Conditional Random Field or the baselines.
 
 \begin{figure}
   \centering
@@ -804,28 +805,28 @@ conditional random field or the baselines.
   \label{fig:CRF}
 \end{figure}
 
-The conditonal random field (Figure \ref{fig:CRF}) took longer to train than
+The Conditional Random Field (Figure \ref{fig:CRF}) took longer to train than
 any other model, and yet
-had a comparable generalzaiton curve to logistic regression, while outperforming
-the generative models. Logistic regression performed better in train score, yet
-had similiar test scores. The increased train and inference times result from
-a more complicated model and optimzation problem. Since our CRF uses L-BFGS,
+had a comparable generalization curve to Logistic Regression, while outperforming
+the generative models. Logistic Regression performed better in train score, yet
+had similar test scores. The increased train and inference times result from
+a more complicated model and optimization problem. Since our CRF uses L-BFGS,
 the estimates to the hessian are more expensive, thus making parameter estimation
-difficult. Inference was faster than the hybrid baesyian network.
+difficult. Inference was faster than the Hybrid Bayesian Network.
 
 \section{Results: General Findings}
 Discriminative models learned better than their generative counterparts, as they
-model the conditonal probability $p(y\mid \mathbf{x})$ directly. Hence, they are
+model the conditional probability $p(y\mid \mathbf{x})$ directly. Hence, they are
 less concerned with modeling the features, and results in a lower parameter count.
 
 Image interpolation can effectively reduce the size of the data and models
 by creating robust features invariant to noise. Caution must be exerted if too
-much information is loss, and our results may be different if the orignal images
+much information is loss, and our results may be different if the original images
 were of different sizes, i.e. $100 \times 100$ vs. $1000 \times 1000$.
 
 Adding more complex interactions does not help our learning task, and in some cases
 hinders our performance, both in generalization and tractability. Perhaps image
-interpolation encodes all relavent interactions between pixels in the orignal
+interpolation encodes all relevant interactions between pixels in the original
 image that we do not need to account for with general graphs over naive assumptions.
 
 
@@ -834,15 +835,17 @@ image that we do not need to account for with general graphs over naive assumpti
 \section{Conclusion}
 \label{sec:conclusion}
 As we can see from our experiments, image interpolation can be a useful technique
-for dimensionality reduction when using graphical models for classifcation.
+for dimensionality reduction when using graphical models for classification.
 As our original $500 \times 500$ images contained over $750,000$ features, a simple
 reduction use pixel sampling yields comparable results when reduced to
-$16 \times 16$ ($768$ features). However, image decimation can result in siginifcant
+$16 \times 16$ ($768$ features). However, image decimation can result in significant
 generalization errors from information loss. Using image interpolation as
-a dimensionality reduction technique thus perserves data intelligently and
-generalization ability while improving the time it takes to perfrom
+a dimensionality reduction technique thus preserves data intelligently and
+generalization ability while improving the time it takes to perform
 parameter estimation and inference in graphical models. Discriminative models
 made the most gains from this technique, in contrast to generative models.
+
+All code for this project can be found here: \url{https://github.com/nextBillyonair/PGMProject}
 
 % talk about discrim vs gen
 
