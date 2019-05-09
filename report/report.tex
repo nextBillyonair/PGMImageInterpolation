@@ -66,9 +66,9 @@
 \maketitle
 
 \begin{abstract}
-  In statistical classification, there are two main approaches to learning:
-  \textit{generative} and \textit{discriminative}. In computer vision,
-  \textit{image interpolation} is a method to rescale images analogous to
+  In statistical classification, we can either take the \textit{generative}
+  or \textit{discriminative} approach to modeling. In computer vision, rescaling
+  techniques kown as \textit{image interpolation} are analogous to
   dimensionality reduction. We explore the generalization and tractability of
   \textit{generative-discriminative pairs} when interpolating images to smaller
   sizes.
@@ -85,25 +85,24 @@
 Probabilistic graphical models have many applications in computer science,
 ranging from image segmentation to named entity recognition. However, these
 models can become unwieldy when our feature space $\mathbf{x}$ grows. In the
-case of images, as we increase the number of pixels per row and column, the
-total number of features grows exponentially. For large images, if we treat
-the input space as a rasterized image, then the total number of features is
-$3 \times size^{2}$.
+case of images, as we increase the number of pixels, the
+total number of raw features grows exponentially. For square rasterized images,
+the total number of raw features is $3 \times size^2$.
 
 This leads to issues of tractability for both parameter estimation and
 inference. This paper concerns itself with using image interpolation as
 a dimensionality reduction technique to make learning tractable. We vary the
-dimensionality to see both the generalization ability of our models and the
+dimensionality to examine the generalization ability of our models and the
 efficiency of parameter estimation. We describe our data in Section \ref{sec:data},
 our experimental procedure in Section \ref{sec:task}, and image interpolation
 (Section \ref{sec:img-interpolation}).
 
-We experiment with this concept through two approaches: \textit{generative}
+We experiment with two modeling approaches: \textit{generative}
 and \textit{discriminative} learning. Both approaches are outlined in Section
-\ref{sec:classification}. Our models are formally described in Section
-\ref{sec:baseline-models} and Section \ref{sec:general-models}. Our results
-are presented for all models experiments (Section \ref{sec:results-baseline} and
-\ref{sec:results-general}).
+\ref{sec:classification}. Our models are formally described in Sections
+\ref{sec:baseline-models} and \ref{sec:general-models}. Our results
+are presented in Sections \ref{sec:results-baseline} and \ref{sec:results-general}).
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % steal from proposal
@@ -146,12 +145,13 @@ and can assign labels through Bayes rule \cite{NgJordan}.
     \hat{y} \; = \; \argmax_y \; p(y, \mathbf{x}) \; = \; \argmax_y \; p(y) \cdot p(\mathbf{x} | y) \\
 \end{equation}
 Generative models are attractive in that distributions are learned over the
-feature space for each individual class. However, an important limitation
-mentioned by McCallum et. al \cite{McCallumCRF} is that modeling a distribution
+feature space for individual classes. However, an important limitation
+mentioned by McCallum et al. is that modeling a distribution
 \textit{per feature} quickly becomes intractable as the dimensionality of our
-observed variables $\mathbf{x}$ grows. While simple models can mitigate
-these issues by assuming independence among the features, allowing complex
-dependencies between inputs offers the ability to increase performance.
+observed variables $\mathbf{x}$ grows \cite{McCallumCRF}. While simple models
+can mitigate these issues by assuming independence among the features,
+allowing complex dependencies between inputs may result in
+increased performance.
 
 An alternative approach is to model the conditional probabilities directly,
 ignoring the feature distributions. This is the discriminative approach,
@@ -178,12 +178,10 @@ in Sections \ref{sec:baseline-models} and \ref{sec:general-models}.
 
 \section{Image Interpolation}
 \label{sec:img-interpolation}
-% Explain process and how its good or cool, analogy to dimensionality reduction
-% in a different way
 The most common problem encountered in machine learning is the
 \textit{curse of dimensionality}. Essentially, as our feature space
-$\mathbf{x}$ grows in size, we require a larger number of parameters to
-estimate. This can quickly become intractable in complex models, and
+$\mathbf{x}$ grows in size, we require a larger number of parameters and samples
+to effectively learn. This can quickly become intractable in complex models, and
 reasonably difficult in simple ones. We can see the growth
 in features as we increase the image size in Figure \ref{fig:feature-size}.
 One method to reduce the number of
@@ -193,51 +191,50 @@ interpretability is lost, and the structure of the painting is unintelligible.
 
 \begin{figure}[h!]
   \centering
+  \caption{As the image size increases, the problem quickly becomes intractable}
+  \label{fig:feature-size}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=3.5cm]{feature_graph.png}
+    \includegraphics[height=3.25cm]{feature_graph.png}
     \caption{Growth in the Number of Features}
     \label{fig:feature-graph}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=3.5cm]{param_graph.png}
+    \includegraphics[height=3.25cm]{param_graph.png}
     \caption{Growth in the Number of Model Parameters}
     \label{fig:param-graph}
   \end{subfigure}
-  \caption{As the image size increases, the problem quickly becomes intractable}
-  \label{fig:feature-size}
 \end{figure}
 
 Image interpolation offers a convenient way to downsample images according to
 their local neighborhood, aggregating otherwise noisy estimates into a single
 value. This may be beneficial for classification tasks, as we combine a method
-analogous to dimensionality reduction while preserving the fundamental structure of
-the original content. We use OpenCV's implementation of interpolation \cite{opencv}.
-
-Formally, image interpolation is the task of rescaling an image of one size
-to another. This can be used to both decimate and expand the image. Several
+analogous to dimensionality reduction while preserving the structure of
+the original content.
+Interpolation can be used to both decimate and expand the image. Several
 methods exists for this task, including linear, bicubic, nearest neighbor, and
-\textit{area relation}.
+\textit{area relation} \cite{opencv}.
 
 % downsize this
 \begin{figure}[h!]
   \centering
   \caption{Results of Interpolating a 249,000 pixel image to a 4,096 pixel image.}
+  \vspace{-5pt}
   \label{fig:interpolation}
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{ori_img.png}
-    \vspace{-13pt}
+    \includegraphics[height=3.5cm]{ori_img.png}
+    \vspace{-10pt}
     \caption{Original Image ($498 \times 500$)}
     \label{fig:ori-image}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.45\textwidth}
     \centering
-    \includegraphics[height=4cm]{decimated_img.png}
-    \vspace{-13pt}
+    \includegraphics[height=3.5cm]{decimated_img.png}
+    \vspace{-10pt}
     \caption{Decimated Image ($64 \times 64$)}
     \label{fig:reduced-img}
   \end{subfigure}
@@ -256,10 +253,10 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
   \end{subfigure}
 \end{figure}
 
-The preferred method for image decimation, or downsampling, is to
+The preferred method for image decimation, or downsampling, is
 resampling using pixel area relation as it gives moire'-free results. We can
-see in Figure \ref{fig:interpolation} that the general space of the pixels in
-relation to their values is replicated, albeit with information loss.
+see in Figure \ref{fig:interpolation} that the feature space of the pixels in
+relation to their original values is comparable, albeit with information loss.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -271,7 +268,7 @@ In order to have enough samples for a challenging classification task, we
 elected to perform type categorization. We used the top $4$ art types: paintings,
 photos, drawings, and prints. Each category is limited to the size of the
 smallest set, which is $2,269$ photos. Hence we have a dataset of $9,076$ images
-split evenly between the 4 classes. For training purposes, we use $10$\% of the
+split evenly between the $4$ classes. For training purposes, we use $10$\% of the
 data as our test set ($8,168$ training, $908$ test).
 
  \begin{figure}[h!]
@@ -280,28 +277,28 @@ data as our test set ($8,168$ training, $908$ test).
    \label{fig:examples}
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
-     \includegraphics[height=2.5cm]{sample_painting.png}
+     \includegraphics[height=2.25cm]{sample_painting.png}
      \caption{Sample Painting}
      \label{fig:painting}
    \end{subfigure}
    ~
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
-     \includegraphics[height=2.5cm]{sample_photo.png}
+     \includegraphics[height=2.25cm]{sample_photo.png}
      \caption{Sample Photo}
      \label{fig:photo}
    \end{subfigure}
    ~
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
-     \includegraphics[height=2.5cm]{sample_drawing.png}
+     \includegraphics[height=2.25cm]{sample_drawing.png}
      \caption{Sample Drawing}
      \label{fig:drawing}
    \end{subfigure}
    ~
    \begin{subfigure}[b]{0.23\textwidth}
      \centering
-     \includegraphics[height=2.5cm]{sample_print.png}
+     \includegraphics[height=2.25cm]{sample_print.png}
      \caption{Sample Print}
      \label{fig:print}
    \end{subfigure}
@@ -311,24 +308,22 @@ From Figure \ref{fig:examples}, we can see that paintings are vastly different
 from the other classes, while photos and prints may be difficult to distinguish
 between. Photos and prints share a similar hue and tone, and drawings do not
 always have the vibrant colors found in paintings. Hence, our 4-way
-classification task should be difficult to learn, allow ample room to experiment
-with complex models.
-
+classification task should be difficult to learn, allowing ample room to
+experiment with different models.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-% Describe our pairs
 \section{Baseline Models}
 \label{sec:baseline-models}
 \subsection{Gaussian Naive Bayes}
 \label{sec:NB}
 Naive Bayes is a simple generative classifier based on applying Bayes' theorem
-to extract the conditional likelihood $p(y \mid \mathbf{x})$. Its' fundamental
-assumption for the features is "naive" in that it assumes that every pair of
-features is conditionally independent given then class label $y$ for $K$ features.
-
-We can formulate our model from the joint distribution:
+to extract the conditional likelihood $p(y \mid \mathbf{x})$. The fundamental
+assumption for the features is "naive", assuming that every feature
+is conditionally independent given then class label $y$ for $K$ features.
+We can exploit the conditional independence assumption and that
+$p(\mathbf{x})$ is constant, hence our formulation for the joint
+distribution is:
 \begin{equation}
     p(y, \mathbf{x}) \; = \; p(y) \cdot \prod_{k=1}^K p(x_k \mid y)
 \end{equation}
@@ -336,15 +331,12 @@ Our task is to find the class label $y$ that maximizes the posterior conditional
 likelihood:
 \begin{equation}
   \begin{aligned}
-    \hat{y} \; = \; & \argmax_y \; p(y | \mathbf{x}) \\
-    = \; & \argmax_y \; \frac{p(y) \cdot \prod_{k=1}^K p(x_k \mid y)}{p(\mathbf{x})} \\
+    \hat{y} \; = \; & \argmax_y \; p(y | \mathbf{x})
+    = \;  \argmax_y \; \frac{p(y) \cdot \prod_{k=1}^K p(x_k \mid y)}{p(\mathbf{x})} \\
     = \; & \argmax_y \; p(y) \cdot \prod_{k=1}^K p(x_k \mid y)
   \end{aligned}
 \end{equation}
-We make use of the conditional independence assumption that all features
-are solely dependent on $y$ alone, and that $p(\mathbf{x})$ is constant.
-
-Here, $p(y)$ is the frequency of class $y$ is the training set.
+Here, $p(y)$ is the frequency of class $y$ in the training set.
 For our purposes we assume the features are normally distributed per class.
 This is beneficial for learning, as we learn class-wise means and variances,
 in contrast to the discrete case where each variable can take on $256$ states.
@@ -353,9 +345,9 @@ Hence, our conditional feature likelihood is:
   p(x_i \mid y) = \frac{1}{\sqrt{2\pi\sigma^2_y}} \exp\left(-\frac{(x_i - \mu_y)^2}{2\sigma^2_y}\right)
 \end{equation}
 
-To learn a Gaussian Naive Bayes model, we use Maximum Likelihood Estimates for
+To learn a Gaussian Naive Bayes model, we use Maximum Likelihood Estimation (MLE) for
 the parameters $\mu_{kc}$ and $\sigma_{kc}$ per feature $k$ and class $c$, and class weights
-$\theta_c$. Hence the MLE estimates for $N$ samples are:
+$\theta_c$. The MLE equations for $N$ samples are:
 \begin{equation}
   \begin{aligned}
     \hat{\theta}_c \; = \; & \frac{1}{N} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} = \frac{N_c}{N} \\
@@ -363,7 +355,7 @@ $\theta_c$. Hence the MLE estimates for $N$ samples are:
     \hat{\sigma}_{kc} \; = \; & \frac{1}{N_c} \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} \cdot \left( x_{ik} - \mu_{kc} \right)^2 \\
   \end{aligned}
 \end{equation}
-where $N_c = \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} $, or the number
+Here, $N_c = \sum_{i=1}^N \mathds{1} \left \{ y_i = y_c \right \} $, or the number
 of data points belonging to class $c$ \cite{murphy}.
 \subsection{Multinomial Logistic Regression}
 \label{sec:LR}
@@ -376,10 +368,10 @@ with $Z(\mathbf{x})$ as the normalizing partition function.
   p(y \mid \mathbf{x}) = \frac{1}{Z(\mathbf{x})} \exp \Bigg\{ \sum_{j=1}^K \theta_k f_k\left( y, \mathbf{x} \right) \Bigg\}
 \end{equation}
 
-McCallum et. al formulates the Logistic Regression model, parameterized by
+McCallum et al. formulates the Logistic Regression model, parameterized by
 weights $\theta \in \mathbb{R}^K$, in which a single set of weights is shared
 across all the classes \cite{McCallumCRF}. This is achieved through a set of
-feature functions that are nonzero for a single class and is defined as follows:
+feature functions that are nonzero for a single class:
 \begin{equation}
   \begin{aligned}
     f_{y', j} \left( y, \mathbf{x} \right) \; = \; & \mathds{1} \{ y' = y \} \cdot x_j \\
@@ -393,18 +385,18 @@ For parameter estimation, we opted to use scikit-learn's implementation
 of the L-BFGS algorithm, which approximates the Broyden-Fletcher-Goldfarb-Shanno
 algorithm \cite{scikit-learn}. This is a quasi-Newton optimization method that approximates the
 Hessian matrix to reduce memory usage. Scikit-learn optimizes the L2 penalized
-multinomial loss \cite{scikit-learn} \cite{murphy}.
+multinomial loss \cite{scikit-learn} \cite{murphy}. Here, $y_i$ is the true
+label and $y_c$ could be any label:
 \begin{equation}
   \min_{\theta} \; \frac{1}{2} \cdot \theta^T \theta - \sum_{i=1}^N \Bigg[ \sum_{c=1}^C \Bigg[ \mathds{1} \{ y_i = y_c \} \cdot \sum_{k=1}^K \theta_k f_k\left( y_i, \mathbf{x}_i \right) \Bigg] - \log Z(\mathbf{x}_i)  \Bigg]
 \end{equation}
-where $y_i$ is the true label and $y_c$ could be any label.
 
 \begin{figure}
     \centering
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Generative: Naive Bayes}
-        \scalebox{0.75}{
+        \scalebox{0.6}{
         \tikz{ %
           \centering
           \node[latent] (y) {$y$} ; %
@@ -418,7 +410,7 @@ where $y_i$ is the true label and $y_c$ could be any label.
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Generative: General Bayesian Networks}
-        \scalebox{0.75}{
+        \scalebox{0.6}{
         \tikz{ %
           \centering
           \node[latent] (x1) {$x_1$} ; %
@@ -436,11 +428,11 @@ where $y_i$ is the true label and $y_c$ could be any label.
         }}
     \end{subfigure}
 
-    \vspace{15pt}
+    \vspace{10pt}
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Discriminative: Logistic Regression}
-        \scalebox{0.75}{
+        \scalebox{0.6}{
         \tikz{ %
           \centering
           \node[latent] (y) {$y$} ; %
@@ -459,7 +451,7 @@ where $y_i$ is the true label and $y_c$ could be any label.
     \begin{subfigure}[t]{0.45\textwidth}
         \centering
         \caption*{Discriminative: Conditional Random Fields}
-        \scalebox{0.75}{
+        \scalebox{0.6}{
         \tikz{ %
           \centering
           \node[latent] (x1) {$x_1$} ; %
@@ -496,17 +488,15 @@ parents \cite{murphy}.
   p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k))
 \end{equation}
 
-Since our labels are discrete and the data is continuous, we use
-Hybrid Bayesian Networks. As defined in Koller \& Friedman \cite{koller},
-these networks are known as \textit{Conditional Linear Gaussian (CLG)} models if
+Since our labels are discrete and our features are continuous, we use
+Hybrid Bayesian Networks, otherwise known as
+\textit{Conditional Linear Gaussian (CLG)} models if
 every discrete variable has only discrete parents and every continuous variable
-is represented as a CLG Conditional Probability Distribution (CPD).
-
+is represented as a CLG Conditional Probability Distribution (CPD) \cite{koller}.
 Continuous nodes make use of the multivariate gaussian distribution, parameterized
-by a mean vector $\mathbf{\mu}$ and a symmetric square covariance matrix
-$\mathbf{\Sigma}$.
+by a mean vector $\mathbf{\mu}$ and a symmetric square covariance matrix $\Sigma$.
 \begin{equation}
-  p(\mathbf{x}; \mathbf{\mu}, \mathbf{\Sigma}) \; = \; \frac{1}{(2 \pi)^{n/2} \mid \Sigma \mid^{1/2}} \exp \Big\{ -\frac{1}{2} (\mathbf{x} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{x} - \mathbf{\mu})  \Big\}
+  p(\mathbf{x}; \mathbf{\mu}, \Sigma) \; = \; \frac{1}{(2 \pi)^{n/2} \mid \Sigma \mid^{1/2}} \exp \Big\{ -\frac{1}{2} (\mathbf{x} - \mathbf{\mu})^T \Sigma^{-1} (\mathbf{x} - \mathbf{\mu})  \Big\}
 \end{equation}
 The conditional linear Gaussian CPD for a continuous variable $x_j$, discrete
 parents $\mathbf{U} = \{U_1, \hdots, U_M\}$, continuous parents
@@ -523,7 +513,7 @@ The log likelihood function $\ell$ for a continuous node $X_i$ is:
 \end{equation}
 The MLE parameters are obtained by ordinary linear regression of each node $x_j$
 on its continuous parents $c \in \mathbf{C}$, for each class value
-$\mathbf{u} \in \{0, 1, 2, 3\}$ \cite{koller}.
+$\mathbf{u} \in \{0, 1, 2, 3\}$ of its discrete parent \cite{koller}.
 
 In contrast, our discrete node is the class label $y$, which is just the frequency.
 The maximum likelihood estimate is:
@@ -544,7 +534,7 @@ expected value of the conditional distribution.
 
 \begin{figure}
   \centering
-  \scalebox{0.75}{
+  \scalebox{0.7}{
   \tikz{ %
     \centering
     \node (R) {$R_{i,j}$} ; %
@@ -576,9 +566,9 @@ expected value of the conditional distribution.
 Conditional Random Fields (CRFs) are discriminative graphical models that
 can model output variables $\mathbf{y}$ conditioned on features $\mathbf{x}$
 compactly, in contrast to generative models. CRFs are natural extensions
-to Logistic Regression for general graphs. We describe the model formulation,
-parameter estimation, and inference tasks as outlined by McCallum et. al \cite{McCallumCRF},
-and introduced by Lafferty et. al \cite{CRF}.
+to Logistic Regression for general graphs. Our formulation,
+parameter estimation, and inference approach comes from McCallum et al. \cite{McCallumCRF}
+and Lafferty et al. \cite{CRF}.
 
 CRFs model a conditional likelihood $p(\mathbf{y} \mid \mathbf{x})$ on a general
 graph $\mathcal{G}$, composed of a set of factors
@@ -596,28 +586,28 @@ is composed of the following:
     Z(\mathbf{x}) \; = \; & \sum_{\mathbf{y}} \prod_{C_p \in \mathcal{C}} \prod_{\mathbf{\psi}_c \in C_p} \psi_c (\mathbf{x}_c, \mathbf{y}_c ; \theta_p) \\
   \end{aligned}
 \end{equation}
-Where $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ is the
+Here, $p$ is a factor index, $f_{pk}$ is a feature function, and $\theta_{pk}$ is the
 weight associated with it. $K$ is the number of features and $K(p)$ are the
 features found in factor $p$.
-Because our labels are discrete, we can write our
-feature functions $f_{pk}$ in terms of observation functions $q_{pk}$ to make
+Our labels are discrete and can be written as
+feature functions $f_{pk}$ composed  of observation functions $q_{pk}$ to make
 \textit{label-observation features}.
 \begin{equation}
   f_{pk} (\mathbf{y}_c, \mathbf{x}_c) = \mathds{1} \{\mathbf{y}_c = \mathbf{\widetilde{y}}_c\} \cdot q_{pk}(\mathbf{x}_c)
 \end{equation}
 
-Parameter estimation for CRFs can be done through maximum likelihood estimation,
+Parameter estimation for CRFs is done through MLE,
 where we can minimize the conditional negative log likelihood:
 \begin{equation}
   \ell (\theta) \; = \; - \sum_{C_p \in \mathcal{C}} \sum_{\psi_c \in C_p} \sum_{k=1}^{K(p)} \theta_{pk} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \log Z(\mathbf{x})
 \end{equation}
-Hence, the partial derivative with respect to our paramter $\theta_{pk}$ associated
+The partial derivative with respect to our paramter $\theta_{pk}$ associated
 with the clique template $C_p$ is:
 \begin{equation}
   \frac{\partial \ell}{\partial \theta_{pk}} \; = \; - \sum_{\psi_c \in C_p} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \sum_{\psi_c \in C_p} \sum_{\mathbf{y'}_c} f_{pk} (\mathbf{x}_c, \mathbf{y'}_c) \cdot p(\mathbf{y'}_c \mid \mathbf{x})
 \end{equation}
-We can then minimize our cost function $\ell(\theta)$ using L-BFGS optimization
-algorithm as described in Section \ref{sec:LR} \cite{Nowozin}.
+Mminimizization of the cost function $\ell(\theta)$ is done through the L-BFGS
+optimization algorithm \cite{Nowozin}.
 
 % Add inference
 
@@ -626,24 +616,23 @@ algorithm as described in Section \ref{sec:LR} \cite{Nowozin}.
 
 \section{Experimental Task}
 \label{sec:task}
-% describe how we measure what we measure with what we have
+To effectively study these objective measures, we conduct this experiment
+per model per downsample size. Our choices of sizes
+included: $1$, $2$, $4$, $8$, $16$, $32$, $64$, and $128$. Larger image sizes,
+such as $256 \times 256$, quickly became impossible due to memory constraints.
+For the HBN, any test larger than $16 \times 16$ was intractable
+due to high prediction costs.
+
 For a single downsample size, we performed a $3$-fold cross validation on
 the full $9,076$ image set, using $908$
-images randomly as test. This gives us three points of accuracy, in which we
-can average and extract confidence intervals around. Variables measured for the
+images randomly as test. This gives us three point estimates of accuracy along
+with confidence intervals. Variables measured for the
 cross-validation include: training accuracy, testing accuracy, fit time, and
 score time. These measures provide two fronts of analysis: generalization and
 tractability.
 
-To effectively study these objective measures, we conduct this experiment
-per model per downsample size. Our choices of sizes
-included: $1$, $2$, $4$, $8$, $16$, $32$, $64$, and $128$. We did not test higher pixel sizes
-as $256 \times 256$ pixel images quickly became impossible due to memory constraints.
-For the general models, any test on $32 \times 32$ or larger images was intractable
-due to prediction costs.
-
-All images were rescaled such that its pixel color channels are ranged from
-$[0, 1]$, and we assume our data is continuous instead of discrete to avoid data
+All images were rescaled such that its pixel color channels ranged from
+$[0, 1]$, and we assume our data is continuous to avoid data
 fragmentation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -651,33 +640,30 @@ fragmentation.
 \section{Results: Baseline Models}
 
 \label{sec:results-baseline}
-The baseline models, while naive in its assumptions, did reasonably well in
-terms of generalization ability and tractability.
-
 
 \begin{figure}
   \centering
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{nb_graph_score.png}
+    \includegraphics[height=3cm]{nb_graph_score.png}
     \caption*{}
     \label{fig:nb_graph_score}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{nb_graph_time.png}
+    \includegraphics[height=3cm]{nb_graph_time.png}
     \caption*{}
     \label{fig:nb_graph_time}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{nb_graph_time_score.png}
+    \includegraphics[height=3cm]{nb_graph_time_score.png}
     \caption*{}
     \label{fig:nb_graph_time_score}
   \end{subfigure}
-  \vspace{-10pt}
+  \vspace{-20pt}
   \caption{Generalization and Tractability Results for Gaussian Naive Bayes}
   \label{fig:GNB}
 \end{figure}
@@ -686,94 +672,92 @@ terms of generalization ability and tractability.
   \centering
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{lr_graph_score.png}
+    \includegraphics[height=3cm]{lr_graph_score.png}
     \caption*{}
     \label{fig:lr_graph_score}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{lr_graph_time.png}
+    \includegraphics[height=3cm]{lr_graph_time.png}
     \caption*{}
     \label{fig:lr_graph_time}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{lr_graph_time_score.png}
+    \includegraphics[height=3cm]{lr_graph_time_score.png}
     \caption*{}
     \label{fig:lr_graph_time_score}
   \end{subfigure}
-  \vspace{-10pt}
+  \vspace{-20pt}
   \caption{Generalization and Tractability Results for Multinomial Logistic Regression}
   \label{fig:MLR}
 \end{figure}
-
-For the Gaussian Naive Bayes model (Figure \ref{fig:GNB}), we see two distinct trends.
-First, the model performs equivalently in the training and testing phase, with
-similar accuracy scores. However, compared to the Logistic Regression
+The baseline models, while naive in its assumptions, did reasonably well in
+terms of generalization ability and tractability.
+The Gaussian Naive Bayes model (Figure \ref{fig:GNB}),
+performed similarly in the training and testing phase.
+However, compared to Logistic Regression
 (Figure \ref{fig:MLR}), the Naive Bayes model takes longer to converge to a
-stationary accuracy, even when the number of features is growing exponentially.
+stationary accuracy as the number of features grows.
 
-The time to fit the Naive Bayes was also significantly smaller than the multinomial
+The time to fit the Naive Bayes was significantly smaller than the multinomial
 Logistic Regression. This effect stems from the lack of a quasi second-order
 optimization approach that Logistic Regression uses through L-BFGS. However,
 Logistic Regression was faster in inference, since Naive Bayes computes
-the gaussian likelihood for every feature $x_{ijk}$ before multiplying all
-the conditional probabilities to make a prediction.
+the gaussian likelihood for every feature $x_{ijk}$ to make a prediction.
 
-From Figures \ref{fig:GNB} and \ref{fig:MLR}, we see that no noticeable gains
+From Figures \ref{fig:GNB} and \ref{fig:MLR}, no noticeable gains
 are made for either model for downsampled images larger than $16 \times 16$,
-and in the case of Logistic Regression, can even overfit to noise. This stems
-from the fact that image interpolation creates robust, strong estimators of
-individual features, reducing noise and helping generalization. However,
+and in the case of Logistic Regression, can even overfit to noise.
+The best explanation is that image interpolation creates robust, strong features
+from raw data, reducing noise and helping generalization. However,
 it is important to note the significant loss in accuracy when the image is
-decimated to smaller sizes than $16 \times 16$, as information is lost. While
+decimated to smaller sizes than $16 \times 16$ as information is lost. While
 the models do surprising well with a single color, these results show that
 image interpolation can effectively improve generalization and tractability of
-raw feature training on images.
+raw image data given a reasonable interpolation size.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Results: General Models}
 \label{sec:results-general}
-The general models followed similar trends to our baselines.
-
 For the Hybrid Bayesian Network (Figure \ref{fig:HBN}), initial generalization
-ability was improved
-from inter-feature connections. However, this formulation proved to be intractable
-after $32 \times 32$. Hence, while we improve both train and test scores through
-complex interactions, detailed in Figure \ref{fig:net-structure}, this is
+ability was improved from inter-feature connections.
+However, this formulation proved to be intractable
+after $32 \times 32$. Hence, while we improve accuracy scores through
+complex interactions (Figure \ref{fig:net-structure}), this is
 offset by increased inference times. Parameter estimation proved to be effective,
 as each node learned a small subset of coefficients through linear regression
-on continuous parents and induced sparsity. However, this formulation hindered
-inference, and the time to predict is exponentially larger than either the
+on continuous parents and induced sparsity from our architecture.
+However, inference time is significantly larger than either the
 Conditional Random Field or the baselines.
 
 \begin{figure}
   \centering
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{bn_graph_score.png}
+    \includegraphics[height=3cm]{bn_graph_score.png}
     \caption*{}
     \label{fig:bn_graph_score}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{bn_graph_time.png}
+    \includegraphics[height=3cm]{bn_graph_time.png}
     \caption*{}
     \label{fig:bn_graph_time}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{bn_graph_time_score.png}
+    \includegraphics[height=3cm]{bn_graph_time_score.png}
     \caption*{}
     \label{fig:bn_graph_time_score}
   \end{subfigure}
-  \vspace{-10pt}
+  \vspace{-20pt}
   \caption{Generalization and Tractability Results for a Hybrid Bayesian Network}
   \label{fig:HBN}
 \end{figure}
@@ -782,91 +766,84 @@ Conditional Random Field or the baselines.
   \centering
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{crf_graph_score.png}
+    \includegraphics[height=3cm]{crf_graph_score.png}
     \caption*{}
     \label{fig:crf_graph_score}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{crf_graph_time.png}
+    \includegraphics[height=3cm]{crf_graph_time.png}
     \caption*{}
     \label{fig:crf_graph_time}
   \end{subfigure}
   ~
   \begin{subfigure}[b]{0.3\textwidth}
     \centering
-    \includegraphics[height=3.2cm]{crf_graph_time_score.png}
+    \includegraphics[height=3cm]{crf_graph_time_score.png}
     \caption*{}
     \label{fig:crf_graph_time_score}
   \end{subfigure}
-  \vspace{-10pt}
+  \vspace{-20pt}
   \caption{Generalization and Tractability Results for a Conditional Random Field}
   \label{fig:CRF}
 \end{figure}
 
-The Conditional Random Field (Figure \ref{fig:CRF}) took longer to train than
+The CRF (Figure \ref{fig:CRF}) took longer to train than
 any other model, and yet
 had a comparable generalization curve to Logistic Regression, while outperforming
-the generative models. Logistic Regression performed better in train score, yet
-had similar test scores. The increased train and inference times result from
-a more complicated model and optimization problem. Since our CRF uses L-BFGS,
-the estimates to the hessian are more expensive, thus making parameter estimation
-difficult. Inference was faster than the Hybrid Bayesian Network.
+the generative models. Logistic Regression performed better in training, yet
+had similar test scores. The increased train times result from
+a more complicated optimization problem, using L-BFGS. In contrast,
+inference was faster than the Hybrid Bayesian Network.
 
 \section{Results: General Findings}
 Discriminative models learned better than their generative counterparts, as they
 model the conditional probability $p(y\mid \mathbf{x})$ directly. Hence, they are
 less concerned with modeling the features, and results in a lower parameter count.
+However, they are susceptible to over-fitting.
 
 Image interpolation can effectively reduce the size of the data and models
 by creating robust features invariant to noise. Caution must be exerted if too
-much information is loss, and our results may be different if the original images
-were of different sizes, i.e. $100 \times 100$ vs. $1000 \times 1000$. Results
-stagnated or degraded as the feature count increased. This is known as
-the \textit{Hughes Phenomenon}, which states that as the number
-of features increases, our performance will initially increase until optimality
-before degrading due to the sparsity of the observed feature space \cite{hp1} \cite{hp2}.
+much information is loss. Results
+stagnated or degraded as the feature count increased.
+% This is known as
+% the \textit{Hughes Phenomenon}, which states that as the number
+% of features increases, our performance will initially increase until optimality
+% before degrading due to the sparsity of the observed feature space \cite{hp1} \cite{hp2}.
 
-Adding more complex interactions does not help our learning task, and in some cases
-hinders our performance, both in generalization and tractability. Perhaps image
-interpolation encodes all relevant interactions between pixels in the original
-image that we do not need to account for with general graphs over naive assumptions.
+Adding more complex interactions did not help our learning task, and in some cases
+hindered our performance in generalization and tractability. This suggests that image
+interpolation encoded all relevant interactions between pixels in the original
+image that we do not need to account for with general graphs.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 \section{Conclusion}
 \label{sec:conclusion}
-As we can see from our experiments, image interpolation can be a useful technique
+Our results show that image interpolation can be a useful technique
 for dimensionality reduction when using graphical models for classification.
-As our original $500 \times 500$ images contained over $750,000$ features, a simple
-reduction use pixel sampling yields comparable results when reduced to
-$16 \times 16$ ($768$ features). However, image decimation can result in significant
-generalization errors from information loss. Using image interpolation as
-a dimensionality reduction technique thus preserves data intelligently and
-generalization ability while improving the time it takes to perform
-parameter estimation and inference in graphical models. Discriminative models
-made the most gains from this technique, in contrast to generative models.
+Our original images of $500 \times 500$ contained approximately $750,000$ features,
+and interpolation can yield comparable results when reduced to a size of
+$16 \times 16$ ($768$ features). Image decimation is still prone to information
+loss and provides sub-optimal performance in heavily downsized images. However,
+our results indicate that interpolation can be an attractive dimensionality
+reduction technique that preserves structure while improving generalization and
+tractability of graphical models.
 
 All code for this project can be found here: \url{https://github.com/nextBillyonair/PGMProject}
 
 % talk about discrim vs gen
 
 \section{Future Work}
-Over the course if this project, several ideas would have been interesting to
-explore, but where not pursued due to the scope of the research question. First,
-a natural area of exploration would be to rerun the experiments using color
+An extension of these experiments would be to examine the effect of color
 quantization, a technique used to reduce the number of colors in an image. This
-is reduces the total number of discrete states each color channel can take on.
-
-A second proposal would be to experiment with structure learning algorithms to
-create networks that take the distribution of colors per class into account.
-Our model was created with the intention of injecting sparsity while still
-retaining relevant connections between pixels.
-
-A third avenue would be to examine how interclass confusion in inference
-is influenced by increasing the number of features.
+would compress the feature space for an image. Another extension would
+be to use structure learning algorithms on decimated images to explore
+what interactions are supported by the underlying distributions. Finally,
+examining how inter-class confusion in inference is influenced by interpolation
+techniques could yield interesting insights in what our models learn.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
