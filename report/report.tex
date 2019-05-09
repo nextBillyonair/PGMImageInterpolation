@@ -188,7 +188,7 @@ reasonably difficult in simple ones. We can see the growth
 in features as we increase the image size in Figure \ref{fig:feature-size}.
 One method to reduce the number of
 features for a data set is Principle Component Analysis, which projects
-data to a smaller dimension while maximizing the variance. However,
+data to a smaller dimension with components that maximize the variance. However,
 interpretability is lost, and the structure of the painting is unintelligible.
 
 \begin{figure}[h!]
@@ -617,7 +617,7 @@ with the clique template $C_p$ is:
   \frac{\partial \ell}{\partial \theta_{pk}} \; = \; - \sum_{\psi_c \in C_p} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \sum_{\psi_c \in C_p} \sum_{\mathbf{y'}_c} f_{pk} (\mathbf{x}_c, \mathbf{y'}_c) \cdot p(\mathbf{y'}_c \mid \mathbf{x})
 \end{equation}
 We can then minimize our cost function $\ell(\theta)$ using L-BFGS optimization
-algorithm as described in Section \ref{sec:LR}.
+algorithm as described in Section \ref{sec:LR} \cite{Nowozin}.
 
 % Add inference
 
@@ -822,7 +822,11 @@ less concerned with modeling the features, and results in a lower parameter coun
 Image interpolation can effectively reduce the size of the data and models
 by creating robust features invariant to noise. Caution must be exerted if too
 much information is loss, and our results may be different if the original images
-were of different sizes, i.e. $100 \times 100$ vs. $1000 \times 1000$.
+were of different sizes, i.e. $100 \times 100$ vs. $1000 \times 1000$. Results
+stagnated or degraded as the feature count increased. This is known as
+the \textit{Hughes Phenomenon}, which states that as the number
+of features increases, our performance will initially increase until optimality
+before degrading due to the sparsity of the observed feature space \cite{hp1} \cite{hp2}.
 
 Adding more complex interactions does not help our learning task, and in some cases
 hinders our performance, both in generalization and tractability. Perhaps image
