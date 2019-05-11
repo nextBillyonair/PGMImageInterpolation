@@ -66,10 +66,10 @@
 \maketitle
 
 \begin{abstract}
-  In statistical classification, we can either take the \textit{generative}
-  or \textit{discriminative} approach to modeling. In computer vision, rescaling
-  techniques kown as \textit{image interpolation} are analogous to
-  dimensionality reduction. We explore the generalization and tractability of
+  In statistical classification, modeling can be approached in the \textit{generative}
+  or \textit{discriminative} way. In computer vision, rescaling
+  techniques known as \textit{image interpolation} are analogous to
+  dimensionality reduction. This report explores the generalization and tractability of
   \textit{generative-discriminative pairs} when interpolating images to smaller
   sizes.
 \end{abstract}
@@ -84,22 +84,22 @@
 % something about how this might be interesting
 Probabilistic graphical models have many applications in computer science,
 ranging from image segmentation to named entity recognition. However, these
-models can become unwieldy when our feature space $\mathbf{x}$ grows. In the
-case of images, as we increase the number of pixels, the
+models can become unwieldy when the feature space $\mathbf{x}$ grows. In the
+case of images, as the number of pixels increases, the
 total number of raw features grows exponentially. For square rasterized images,
 the total number of raw features is $3 \times size^2$.
 
 This leads to issues of tractability for both parameter estimation and
 inference. This paper concerns itself with using image interpolation as
 a dimensionality reduction technique to make learning tractable. We vary the
-dimensionality to examine the generalization ability of our models and the
-efficiency of parameter estimation. We describe our data in Section \ref{sec:data},
-our experimental procedure in Section \ref{sec:task}, and image interpolation
+dimensionality to examine the generalization ability of the models and the
+efficiency of parameter estimation. We describe the data in Section \ref{sec:data},
+experimental procedure in Section \ref{sec:task}, and image interpolation
 (Section \ref{sec:img-interpolation}).
 
 We experiment with two modeling approaches: \textit{generative}
 and \textit{discriminative} learning. Both approaches are outlined in Section
-\ref{sec:classification}. Our models are formally described in Sections
+\ref{sec:classification}. The models are formally described in Sections
 \ref{sec:baseline-models} and \ref{sec:general-models}. Our results
 are presented in Sections \ref{sec:results-baseline} and \ref{sec:results-general}).
 
@@ -179,11 +179,11 @@ in Sections \ref{sec:baseline-models} and \ref{sec:general-models}.
 \section{Image Interpolation}
 \label{sec:img-interpolation}
 The most common problem encountered in machine learning is the
-\textit{curse of dimensionality}. Essentially, as our feature space
+\textit{curse of dimensionality}. Essentially, as the feature space
 $\mathbf{x}$ grows in size, we require a larger number of parameters and samples
 to effectively learn. This can quickly become intractable in complex models, and
-reasonably difficult in simple ones. We can see the growth
-in features as we increase the image size in Figure \ref{fig:feature-size}.
+reasonably difficult in simple ones. The growth
+in features as image size increases is apparent in Figure \ref{fig:feature-size}.
 One method to reduce the number of
 features for a data set is Principle Component Analysis, which projects
 data to a smaller dimension with components that maximize the variance. However,
@@ -210,7 +210,7 @@ interpretability is lost, and the structure of the painting is unintelligible.
 
 Image interpolation offers a convenient way to downsample images according to
 their local neighborhood, aggregating otherwise noisy estimates into a single
-value. This may be beneficial for classification tasks, as we combine a method
+value. This may be beneficial for classification tasks, as interpolation is
 analogous to dimensionality reduction while preserving the structure of
 the original content.
 Interpolation can be used to both decimate and expand the image. Several
@@ -254,8 +254,8 @@ methods exists for this task, including linear, bicubic, nearest neighbor, and
 \end{figure}
 
 The preferred method for image decimation, or downsampling, is
-resampling using pixel area relation as it gives moire'-free results. We can
-see in Figure \ref{fig:interpolation} that the feature space of the pixels in
+resampling using pixel area relation as it gives moire'-free results. This can be
+seen in Figure \ref{fig:interpolation} that the feature space of the pixels in
 relation to their original values is comparable, albeit with information loss.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -263,13 +263,13 @@ relation to their original values is comparable, albeit with information loss.
 
 \section{Data}
 \label{sec:data}
-Our data is drawn from a subset of the Rijkmuseum Dataset \cite{Rijksmuseum}.
+The data is drawn from a subset of the Rijkmuseum Dataset \cite{Rijksmuseum}.
 In order to have enough samples for a challenging classification task, we
 elected to perform type categorization. We used the top $4$ art types: paintings,
 photos, drawings, and prints. Each category is limited to the size of the
-smallest set, which is $2,269$ photos. Hence we have a dataset of $9,076$ images
-split evenly between the $4$ classes. For training purposes, we use $10$\% of the
-data as our test set ($8,168$ training, $908$ test).
+smallest set, which is $2,269$ photos. Hence the dataset has $9,076$ images
+split evenly between the $4$ classes. For training purposes, $10$\% of the
+data is used as the test set ($8,168$ training, $908$ test).
 
  \begin{figure}[h!]
    \caption{Class Examples}
@@ -304,10 +304,10 @@ data as our test set ($8,168$ training, $908$ test).
    \end{subfigure}
  \end{figure}
 
-From Figure \ref{fig:examples}, we can see that paintings are vastly different
+From Figure \ref{fig:examples}, paintings are vastly different
 from the other classes, while photos and prints may be difficult to distinguish
 between. Photos and prints share a similar hue and tone, and drawings do not
-always have the vibrant colors found in paintings. Hence, our 4-way
+always have the vibrant colors found in paintings. Hence, the 4-way
 classification task should be difficult to learn, allowing ample room to
 experiment with different models.
 
@@ -360,7 +360,7 @@ of data points belonging to class $c$ \cite{murphy}.
 \subsection{Multinomial Logistic Regression}
 \label{sec:LR}
 Logistic Regression is the discriminative analog to the Naive Bayes
-classifier, sometimes referred to as the \textit{maxmimum-entropy classifer}
+classifier, sometimes referred to as the \textit{maximum-entropy classifier}
 or a normalized \textit{log-linear model}. As a discriminative model,
 we can optimize directly for the conditional likelihood $p(y \mid \mathbf{x})$,
 with $Z(\mathbf{x})$ as the normalizing partition function.
@@ -478,17 +478,17 @@ label and $y_c$ could be any label:
 \subsection{Hybrid Bayesian Networks}
 \label{sec:BN}
 General Bayesian Networks (GBNs) are directed graphical models that are
-comprised of a set of nodes and edges. The nodes are our random variables,
+comprised of a set of nodes and edges. The nodes are random variables,
 and they interrelate through directed edges. This allows us to
-encode complex relations between our features $\mathbf{x}$ that are not
-captured by the Naive Bayes classifier. We can exploit these relationships
-to decompose the joint distribution into factors conditioned on the node's
+encode complex relations between the features $\mathbf{x}$ that are not
+captured by the Naive Bayes classifier. By exploiting these relationships,
+the joint distribution can be decomposed into factors conditioned on the node's
 parents \cite{murphy}.
 \begin{equation}
   p(\mathbf{x}) \; = \; \prod_{k=1}^K p(x_k \mid pa(x_k))
 \end{equation}
 
-Since our labels are discrete and our features are continuous, we use
+Since the labels are discrete and the raw features are continuous, we use
 Hybrid Bayesian Networks, otherwise known as
 \textit{Conditional Linear Gaussian (CLG)} models if
 every discrete variable has only discrete parents and every continuous variable
@@ -577,7 +577,7 @@ of a CRF with parameter tying, where a set of factors can share a set of feature
 functions $\{f_{pk}\left(\mathbf{x}_c, \mathbf{y}_c \right)\}_{k=1}^{K(p)}$ and
 parameters $\theta_p \in \mathbb{R}^{K(p)}$ for a given \textit{clique template}
 $C_p$. These clique templates come from partitioning the factors of graph
-$\mathcal{G}$ into $\mathcal{C} = \{C_1, C_2, \hdots, C_p \}$. Hence, our model
+$\mathcal{G}$ into $\mathcal{C} = \{C_1, C_2, \hdots, C_p \}$. Hence, the model
 is composed of the following:
 \begin{equation}
   \begin{aligned}
@@ -601,12 +601,12 @@ where we can minimize the conditional negative log likelihood:
 \begin{equation}
   \ell (\theta) \; = \; - \sum_{C_p \in \mathcal{C}} \sum_{\psi_c \in C_p} \sum_{k=1}^{K(p)} \theta_{pk} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \log Z(\mathbf{x})
 \end{equation}
-The partial derivative with respect to our paramter $\theta_{pk}$ associated
+The partial derivative with respect to the parameter $\theta_{pk}$ associated
 with the clique template $C_p$ is:
 \begin{equation}
   \frac{\partial \ell}{\partial \theta_{pk}} \; = \; - \sum_{\psi_c \in C_p} f_{pk} (\mathbf{x}_c, \mathbf{y}_c) + \sum_{\psi_c \in C_p} \sum_{\mathbf{y'}_c} f_{pk} (\mathbf{x}_c, \mathbf{y'}_c) \cdot p(\mathbf{y'}_c \mid \mathbf{x})
 \end{equation}
-Mminimizization of the cost function $\ell(\theta)$ is done through the L-BFGS
+Minimization of the cost function $\ell(\theta)$ is done through the L-BFGS
 optimization algorithm \cite{Nowozin}.
 
 % Add inference
@@ -625,14 +625,14 @@ due to high prediction costs.
 
 For a single downsample size, we performed a $3$-fold cross validation on
 the full $9,076$ image set, using $908$
-images randomly as test. This gives us three point estimates of accuracy along
-with confidence intervals. Variables measured for the
+images randomly as test. This gives three point estimates from which
+the standard deviation can be derived across the folds. Variables measured for the
 cross-validation include: training accuracy, testing accuracy, fit time, and
 score time. These measures provide two fronts of analysis: generalization and
 tractability.
 
 All images were rescaled such that its pixel color channels ranged from
-$[0, 1]$, and we assume our data is continuous to avoid data
+$[0, 1]$, and we assume the data is continuous to avoid data
 fragmentation.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -727,7 +727,7 @@ raw image data given a reasonable interpolation size.
 For the Hybrid Bayesian Network (Figure \ref{fig:HBN}), initial generalization
 ability was improved from inter-feature connections.
 However, this formulation proved to be intractable
-after $32 \times 32$. Hence, while we improve accuracy scores through
+after $32 \times 32$. Hence, while accuracy scored improved through
 complex interactions (Figure \ref{fig:net-structure}), this is
 offset by increased inference times. Parameter estimation proved to be effective,
 as each node learned a small subset of coefficients through linear regression
@@ -812,10 +812,10 @@ stagnated or degraded as the feature count increased.
 % of features increases, our performance will initially increase until optimality
 % before degrading due to the sparsity of the observed feature space \cite{hp1} \cite{hp2}.
 
-Adding more complex interactions did not help our learning task, and in some cases
+Adding more complex interactions did not help the learning task, and in some cases
 hindered our performance in generalization and tractability. This suggests that image
 interpolation encoded all relevant interactions between pixels in the original
-image that we do not need to account for with general graphs.
+image that do not need to be accounted for with general graphs.
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -843,7 +843,7 @@ would compress the feature space for an image. Another extension would
 be to use structure learning algorithms on decimated images to explore
 what interactions are supported by the underlying distributions. Finally,
 examining how inter-class confusion in inference is influenced by interpolation
-techniques could yield interesting insights in what our models learn.
+techniques could yield interesting insights in what the models learn.
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

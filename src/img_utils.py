@@ -108,7 +108,7 @@ def lineplot_ci(ax, sizes, mean, std, label, x_label, y_label, title, color=0,
     color = colors[color]
     Lower, Upper = get_ci(mean, std)
     ax.plot(sizes, mean, lw=1, label=label, color=color, marker='o', markersize=4)
-    ax.fill_between(sizes, Upper, Lower, alpha=0.4, label="95% CI", color=color)
+    ax.fill_between(sizes, Upper, Lower, alpha=0.4, label=r'$\pm \; \sigma$', color=color)
     ax.set_title(title)
     ax.legend(loc = loc)
     ax.set_xlabel(x_label)
@@ -129,8 +129,8 @@ def lineplot(ax, x_data, y_data, x_label, y_label, title,
 
 
 def get_ci(means, stds):
-    Lower = [means[i] - (1.96)*(stds[i]) for i in range(len(means))]
-    Upper = [means[i] + (1.96)*(stds[i]) for i in range(len(means))]
+    Lower = [means[i] - (stds[i]) for i in range(len(means))]
+    Upper = [means[i] + (stds[i]) for i in range(len(means))]
     return Lower, Upper
 
 
