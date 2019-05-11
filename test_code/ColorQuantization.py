@@ -6,6 +6,20 @@ from tqdm import tqdm
 import matplotlib.pyplot as plt
 import matplotlib
 
+# Plot size to 14" x 7"
+matplotlib.rc('figure', figsize = (14, 7))
+# Font size to 14
+matplotlib.rc('font', size = 14)
+# Do not display top and right frame lines
+matplotlib.rc('axes.spines', top = False, right = False)
+# Remove grid lines
+matplotlib.rc('axes', grid = False)
+# Set backgound color to white
+matplotlib.rc('axes', facecolor = 'white')
+
+# colors = {0:'#539caf', 1:'#7663b0'}
+colors = { 0:"#003f5c", 1:"#444e86", 2:"#955196", 3:"#dd5182", 4:"#ff6e54", 5:"#ffa600"}
+
 def load_image(filename):
     return cv2.cvtColor(cv2.imread(filename), cv2.COLOR_BGR2RGB)
 
